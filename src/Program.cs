@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 
 namespace RadiantMapToWavefrontObj
 {
@@ -7,6 +8,8 @@ namespace RadiantMapToWavefrontObj
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("RadiantMapToWavefrontObj version " + Assembly.GetExecutingAssembly().GetName().Version);
+
             // Check if the file exists.
             if (args.Length > 0 && File.Exists(args[0]))
                 ConvertFile(args[0]);
