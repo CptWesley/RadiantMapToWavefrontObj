@@ -39,6 +39,10 @@ namespace RadiantMapToWavefrontObj
 
             for (int i = 0; i < content.Length; ++i)
             {
+                // Skip empty lines.
+                if (content[i].Length < 1)
+                    continue;
+
                 if (started)
                 {
                     if (content[i][0] == '{')
