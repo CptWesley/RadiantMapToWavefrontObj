@@ -8,7 +8,8 @@ namespace RadiantMapToWavefrontObj
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("RadiantMapToWavefrontObj version " + Assembly.GetExecutingAssembly().GetName().Version);
+            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Console.WriteLine("RadiantMapToWavefrontObj version " + version.Major + '.' + version.Minor + '.' + version.Build);
 
             // Check if the file exists.
             if (args.Length > 0 && File.Exists(args[0]))
