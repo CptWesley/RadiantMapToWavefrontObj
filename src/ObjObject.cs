@@ -187,6 +187,76 @@ namespace RadiantMapToWavefrontObj
             return faces.ToArray();
         }
 
+        // Apply Bowyer-Watson algorithm to triangulate all the points in a plane.
+        // Pseudo code taken from related wikipedia page and provided on the side in comments.
+        public static Face[] BowyerWatson(Vertex[] vertices)
+        {
+            List<Face> triangles = new List<Face>();
+
+            // Add super triangle to list.
+            Face superTriangle = FindSuperTriangle(vertices);
+            Console.WriteLine("Super: " + superTriangle);
+            Vertex[] superVertices = superTriangle.GetVertices();
+            triangles.Add(superTriangle);
+
+            // Add points.
+            foreach (Vertex v in vertices)                                                              // for each point in pointList do
+            {
+                List<Face> badTriangles = new List<Face>();                                             // badTriangles := empty set
+                foreach (Face t in triangles)                                                           // for each triangle in triangulation do
+                {
+                    if (InCircumsphere(v, t))                                                           // if point is inside circumcircle of triangle
+                        badTriangles.Add(t);                                                            // add triangle to badTriangles
+                }
+
+                List<Edge> polygon = new List<Edge>();                                                  // polygon := empty set
+
+                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
+                {
+                    foreach (Edge edge in triangle.GetEdges())                                          // for each edge in triangle do
+                    {
+                        bool shared = false;
+                        foreach (Face otherTriangle in badTriangles)                                    // if edge is not shared by any other triangles in badTriangles
+                        {
+                            if (triangle == otherTriangle)
+                                continue;
+                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.GetInverse()))
+                            {
+                                shared = true;
+                                break;
+                            }
+                        }
+                        if (!shared)
+                            polygon.Add(edge);                                                          // add edge to polygon
+                    }
+                }
+
+                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
+                    triangles.Remove(triangle);                                                         // remove triangle from triangulation
+
+                Console.WriteLine("2: " + polygon.Count);
+
+                foreach (Edge e in polygon)                                                             // for each edge in polygon do
+                    triangles.Add(new Face(e.A, e.B, v));                                               // newTri := form a triangle from edge to point + add newTri to triangulation
+            }
+
+            List<Face> result = new List<Face>();
+
+            Console.WriteLine("3: " + triangles.Count);
+
+            foreach (Face t in triangles)                                                               // for each triangle in triangulation
+            {
+                Vertex[] curVertices = t.GetVertices();
+                if (!curVertices.Contains(superVertices[0])                                             // if triangle contains a vertex from original super-triangle
+                    && !curVertices.Contains(superVertices[1])
+                    && !curVertices.Contains(superVertices[2]))
+                    result.Add(t);                                                                      // remove triangle from triangulation
+            }
+
+            Console.WriteLine("4: " + result.Count);
+
+            return result.ToArray();                                                                    // return triangulation
+        }
 
         // Finds the Bowyer-Watson super triangle of a set of vertices.
         private static Face FindSuperTriangle(Vertex[] vertices)
