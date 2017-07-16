@@ -307,7 +307,7 @@ namespace RadiantMapToWavefrontObj
         private static bool InCircumsphere(Vertex point, Face face)
         {
             Tuple<Vertex, double> cs = face.GetCircumsphere();
-            if (point.Distance(cs.Item1) <= cs.Item2)
+            if (point.Distance(cs.Item1) < cs.Item2)
                 return true;
             return false;
         }
