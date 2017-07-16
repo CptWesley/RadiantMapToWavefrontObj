@@ -24,5 +24,11 @@ namespace RadiantMapToWavefrontObj
         {
             return GetVector().Length();
         }
+
+        // Returns the inverse edge of this edge.
+        public Edge GetInverse()
+        {
+            return new Edge(B, A);
+        }
     }
 }
