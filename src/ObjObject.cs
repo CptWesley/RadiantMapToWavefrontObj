@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RadiantMapToWavefrontObj
@@ -52,6 +53,12 @@ namespace RadiantMapToWavefrontObj
                 res += "vn " + x + " " + y + " " + z + "\n";
             }
             */
+
+            if (Faces == null)
+            {
+                Console.WriteLine("NULL FACES: " + _name);
+                return res;
+            }
 
             // Write faces.
             foreach (Face face in Faces)
