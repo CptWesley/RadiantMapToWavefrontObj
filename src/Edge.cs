@@ -12,5 +12,17 @@ namespace RadiantMapToWavefrontObj
             A = a;
             B = b;
         }
+
+        // Returns the vector given by this edge.
+        public Vector GetVector()
+        {
+            return (Vector) B - (Vector) A;
+        }
+
+        // Returns the length of this edge.
+        public double Length()
+        {
+            return GetVector().Length();
+        }
     }
 }
