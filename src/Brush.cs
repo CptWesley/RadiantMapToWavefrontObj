@@ -24,7 +24,11 @@ namespace RadiantMapToWavefrontObj
         // Creates the needed clipping planes based on code.
         private static ClippingPlane[] CreateClippingPlanes(string[] code)
         {
-            string pattern = @"(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\))\s?(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\))\s?(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\)).*";
+            string pattern = @"(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\))\s?"  // First vertex
+                + @"(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\))\s?"             // Second vertex
+                + @"(\(\s?-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s-?\d+(\.\d+)?\s?\))\s"              // Third vertex
+                + @"(\w+(\/\S*)*)"                                                          // Texture
+                + @".*";                                                                    // Leftovers
             Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
             List<ClippingPlane> planes = new List<ClippingPlane>();
