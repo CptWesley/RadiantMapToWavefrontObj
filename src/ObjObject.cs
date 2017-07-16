@@ -236,7 +236,7 @@ namespace RadiantMapToWavefrontObj
         // Checks if a point lies in the circumsphere of a face.
         private static bool InCircumsphere(Vertex point, Face face)
         {
-            Tuple<Vertex, double> cs = face.FindCircumcircle();
+            Tuple<Vertex, double> cs = face.GetCircumsphere();
             if (point.Distance(cs.Item1) <= cs.Item2)
                 return true;
             return false;

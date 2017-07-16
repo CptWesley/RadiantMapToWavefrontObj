@@ -68,7 +68,7 @@ namespace RadiantMapToWavefrontObj
         }
 
         // Finds the center and radius of a circumcircle of this triangle.
-        public Tuple<Vertex, double> FindCircumcircle()
+        public Tuple<Vertex, double> GetCircumsphere()
         {
             // Find center.
             Vector v0 = (Vector)_vertices[1] - (Vector)_vertices[0];
