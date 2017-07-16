@@ -85,6 +85,16 @@ namespace RadiantMapToWavefrontObj
             return new Tuple<Vertex, double>(center, radius);
         }
 
+        // Finds and returns the edges of this triangle.
+        public Edge[] GetEdges()
+        {
+            Edge[] edges = new Edge[3];
+            edges[0] = new Edge(_vertices[0], _vertices[1]);
+            edges[1] = new Edge(_vertices[1], _vertices[2]);
+            edges[2] = new Edge(_vertices[2], _vertices[0]);
+            return edges;
+        }
+
         // Returns a stringified version of the object.
         public override string ToString()
         {
