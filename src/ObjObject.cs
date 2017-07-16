@@ -188,6 +188,52 @@ namespace RadiantMapToWavefrontObj
             return faces.ToArray();
         }
 
+
+        // Finds the Bowyer-Watson super triangle of a set of vertices.
+        private static Face FindSuperTriangle(Vertex[] vertices)
+        {
+            // Setup super triangle.
+            double minX, maxX, dX, midX, minY, maxY, dY, midY, minZ, maxZ, dZ, midZ;
+
+            minX = minY = minZ = Double.MaxValue;
+            maxX = maxY = maxZ = Double.MinValue;
+
+            foreach (Vertex v in vertices)
+            {
+                if (v.X < minX)
+                    minX = v.X;
+                else if (v.X > maxX)
+                    maxX = v.X;
+
+                if (v.Y < minY)
+                    minY = v.Y;
+                else if (v.Y > maxY)
+                    maxY = v.Y;
+
+                if (v.Z < minZ)
+                    minZ = v.Z;
+                else if (v.Z > maxZ)
+                    maxZ = v.Z;
+            }
+
+            ++maxX;
+            ++maxY;
+            ++maxZ;
+            --minX;
+            --minY;
+            --minZ;
+
+            dX = maxX - minX;
+            dY = maxY - minY;
+            dZ = maxZ - minZ;
+
+            midX = dX / 2 + minX;
+            midY = dY / 2 + minY;
+            midZ = dZ / 2 + minZ;
+
+            return new Face(new[] { new Vertex(minX, minY, minZ), new Vertex(midX, midY, maxZ), new Vertex(maxX, maxX, minZ) });
+        }
+
         // Fix normals of faces pointing in the wrong direction.
         private static void FixNormal(Face face, Vector normal)
         {
