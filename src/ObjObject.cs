@@ -233,6 +233,15 @@ namespace RadiantMapToWavefrontObj
             return new Face(new[] { new Vertex(minX, minY, minZ), new Vertex(midX, midY, maxZ), new Vertex(maxX, maxX, minZ) });
         }
 
+        // Checks if a point lies in the circumsphere of a face.
+        private static bool InCircumsphere(Vertex point, Face face)
+        {
+            Tuple<Vertex, double> cs = face.FindCircumcircle();
+            if (point.Distance(cs.Item1) <= cs.Item2)
+                return true;
+            return false;
+        }
+
         // Fix normals of faces pointing in the wrong direction.
         private static void FixNormal(Face face, Vector normal)
         {
