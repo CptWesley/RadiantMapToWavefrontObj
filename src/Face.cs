@@ -12,10 +12,19 @@ namespace RadiantMapToWavefrontObj
             _vertices = new Vertex[3];
         }
 
-        // Empty contructor that creates a new face with 3 vertices.
+        // Contructor that creates a new face with 3 vertices.
         public Face(Vertex[] vertices)
         {
             _vertices = vertices;
+        }
+
+        // Contructor that creates a new face with 3 vertices.
+        public Face(Vertex a, Vertex b, Vertex c)
+        {
+            _vertices = new Vertex[3];
+            _vertices[0] = a;
+            _vertices[1] = b;
+            _vertices[2] = c;
         }
 
         // Returns the vertices of the face.
