@@ -234,7 +234,7 @@ namespace RadiantMapToWavefrontObj
         }
 
         // Finds the center and radius of a circumcircle of a triangle.
-        public static Tuple<Vertex, double> FindCircumcircle(Face triangle)
+        private static Tuple<Vertex, double> FindCircumcircle(Face triangle)
         {
             // Find center.
             Vector v0 = (Vector)triangle.Vertex(1) - (Vector)triangle.Vertex(0);
