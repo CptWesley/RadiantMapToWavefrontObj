@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace RadiantMapToWavefrontObj
 {
     public class Face
@@ -64,6 +65,24 @@ namespace RadiantMapToWavefrontObj
             Vector v2 = (Vector)_vertices[2] - (Vector)_vertices[0];
 
             return Vector.CrossProduct(v1, v2) * -1;
+        }
+
+        // Finds the center and radius of a circumcircle of this triangle.
+        public Tuple<Vertex, double> FindCircumcircle()
+        {
+            // Find center.
+            Vector v0 = (Vector)_vertices[1] - (Vector)_vertices[0];
+            Vector v1 = (Vector)_vertices[2] - (Vector)_vertices[0];
+
+            Vector vx = Vector.CrossProduct(v0, v1);
+
+            Vector centerVector = (Vector.CrossProduct(vx, v0) * v1.SquareLength() + Vector.CrossProduct(v1, vx) * v0.SquareLength()) / (2 * vx.SquareLength());
+            Vertex center = _vertices[0] + centerVector;
+
+            // Find radius.
+            double radius = centerVector.Length();
+
+            return new Tuple<Vertex, double>(center, radius);
         }
 
         // Returns a stringified version of the object.

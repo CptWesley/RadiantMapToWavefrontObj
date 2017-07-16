@@ -233,24 +233,6 @@ namespace RadiantMapToWavefrontObj
             return new Face(new[] { new Vertex(minX, minY, minZ), new Vertex(midX, midY, maxZ), new Vertex(maxX, maxX, minZ) });
         }
 
-        // Finds the center and radius of a circumcircle of a triangle.
-        private static Tuple<Vertex, double> FindCircumcircle(Face triangle)
-        {
-            // Find center.
-            Vector v0 = (Vector)triangle.Vertex(1) - (Vector)triangle.Vertex(0);
-            Vector v1 = (Vector)triangle.Vertex(2) - (Vector)triangle.Vertex(0);
-
-            Vector vx = Vector.CrossProduct(v0, v1);
-
-            Vector centerVector = (Vector.CrossProduct(vx, v0) * v1.SquareLength() + Vector.CrossProduct(v1, vx) * v0.SquareLength()) / (2*vx.SquareLength());
-            Vertex center = triangle.Vertex(0) + centerVector;
-
-            // Find radius.
-            double radius = centerVector.Length();
-
-            return new Tuple<Vertex, double>(center, radius);
-        }
-
         // Fix normals of faces pointing in the wrong direction.
         private static void FixNormal(Face face, Vector normal)
         {
