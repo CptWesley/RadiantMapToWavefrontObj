@@ -33,6 +33,12 @@ namespace RadiantMapToWavefrontObj
             return new Edge(B, A);
         }
 
+        // Returns a stringified version of this object.
+        public override string ToString()
+        {
+            return "<" + A + ", " + B + ">";
+        }
+
         // Checks if two edges are equal.
         public override bool Equals(object obj)
         {
