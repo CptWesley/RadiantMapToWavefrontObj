@@ -10,4 +10,4 @@ Drag and drop a .map file onto the .exe
 (*if there are any .map formats not supported, please notify me*)  
 
 ### Latest Release
-**NOT AVAILABLE**
+[Latest Release](https://github.com/CptWesley/RadiantMapToWavefrontObj/releases/latest)
