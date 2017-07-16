@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace RadiantMapToWavefrontObj
 {
     public struct Edge
@@ -29,6 +31,42 @@ namespace RadiantMapToWavefrontObj
         public Edge GetInverse()
         {
             return new Edge(B, A);
+        }
+
+        // Checks if two edges are equal.
+        public override bool Equals(object obj)
+        {
+            if (obj is Edge)
+            {
+                Edge that = (Edge)obj;
+                if (A == that.A && B == that.B)
+                    return true;
+            }
+            return false;
+        }
+
+        // Returns a hascode for the object.
+        public override int GetHashCode()
+        {
+            return A.GetHashCode() + 2 * B.GetHashCode();
+        }
+
+        // Override == operator.
+        public static bool operator ==(Edge a, Edge b)
+        {
+            if (ReferenceEquals(a, null))
+            {
+                if (ReferenceEquals(b, null))
+                    return true;
+                return false;
+            }
+            return a.Equals(b);
+        }
+
+        // Override != operator.
+        public static bool operator !=(Edge a, Edge b)
+        {
+            return !(a == b);
         }
     }
 }
