@@ -303,7 +303,7 @@ namespace RadiantMapToWavefrontObj
             midY = dY / 2 + minY;
             midZ = dZ / 2 + minZ;
 
-            return new Face(new[] { new Vertex(minX, minY, minZ), new Vertex(midX, midY, maxZ), new Vertex(maxX, maxX, minZ) });
+            return new Face(new Vertex(minX, minY, minZ), new Vertex(midX, maxY, minZ), new Vertex(maxX, minY, minZ));
         }
 
         // Checks if a point lies in the circumsphere of a face.
