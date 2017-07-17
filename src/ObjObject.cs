@@ -285,12 +285,15 @@ namespace RadiantMapToWavefrontObj
                     maxZ = v.Z;
             }
 
-            ++maxX;
-            ++maxY;
-            ++maxZ;
-            --minX;
-            --minY;
-            --minZ;
+            double d = 10;
+
+            maxX += d;
+            maxY += d;
+            maxZ += d;
+            minX -= d;
+            minY -= d;
+            minZ -= d;
+            
 
             dX = maxX - minX;
             dY = maxY - minY;
