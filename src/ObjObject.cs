@@ -141,47 +141,17 @@ namespace RadiantMapToWavefrontObj
         private static Face[] CreateFaces(Vertex[] vertices, ClippingPlane[] planes)
         {
             List<Face> faces = new List<Face>();
-            double centerOffset = 1e-4;
 
             for (int i = 0; i < planes.Length; ++i)
             {
-                // Create a center point, we need a tiny offset to make sure we don't mess up for perfectly symetrical shapes.
-                double centerX = centerOffset;
-                double centerY = centerOffset;
-                double centerZ = centerOffset;
-
-                List<Vertex> verts = planes[i].FindVerticesInPlane(vertices).ToList();
+                Vertex[] verts = planes[i].FindVerticesInPlane(vertices);
 
                 // Abort when there are no vertices anyway. Something went wrong...
-                if (verts.Count <= 0)
+                if (verts.Length < 3)
                     return null;
 
-                foreach (Vertex v in verts)
-                {
-                    centerX += v.X;
-                    centerY += v.Y;
-                    centerZ += v.Z;
-                }
-
-                Vertex center = new Vertex(centerX / verts.Count, centerY / verts.Count, centerZ / verts.Count);
-                center.SetNormal(planes[i].Normal);
-
-                // Calculate faces based on some hackish algorithm that seems to work so far. Might need replacement later.
-                // Algorithm:  1. Find vertex closest to the center point.
-                //             2. Sort the list of vertices based on the distance to the vertex found in 1.
-                //             3. Add faces in the following manner: {0,1,2}, {1,2,3}, {2,3,4}, etc...
-                //             4. Check if the face's normal is in the right direction, otherwise: invert it.
-                if (verts.Count >= 3)
-                {
-                    verts.Sort((el1, el2) => center.Distance(el1).CompareTo(center.Distance(el2)));
-                    verts.Sort((el1, el2) => verts[0].Distance(el1).CompareTo(verts[0].Distance(el2)));
-                    for (int j = 0; j < verts.Count - 2; ++j)
-                    {
-                        Face face = new Face(verts.GetRange(j, 3).ToArray());
-                        FixNormal(face, planes[i].Normal);
-                        faces.Add(face);
-                    }
-                }
+                foreach (Face face in BowyerWatson(verts))
+                    faces.Add(face);
             }
 
             return faces.ToArray();
