@@ -203,10 +203,10 @@ namespace RadiantMapToWavefrontObj
             foreach (Vertex v in vertices)                                                              // for each point in pointList do
             {
                 List<Face> badTriangles = new List<Face>();                                             // badTriangles := empty set
-                foreach (Face t in triangles)                                                           // for each triangle in triangulation do
+                foreach (Face triangle in triangles)                                                    // for each triangle in triangulation do
                 {
-                    if (InCircumsphere(v, t))                                                           // if point is inside circumcircle of triangle
-                        badTriangles.Add(t);                                                            // add triangle to badTriangles
+                    if (InCircumsphere(v, triangle))                                                    // if point is inside circumcircle of triangle
+                        badTriangles.Add(triangle);                                                     // add triangle to badTriangles
                 }
 
                 List<Edge> polygon = new List<Edge>();                                                  // polygon := empty set
