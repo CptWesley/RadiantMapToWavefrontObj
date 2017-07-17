@@ -195,7 +195,6 @@ namespace RadiantMapToWavefrontObj
 
             // Add super triangle to list.
             Face superTriangle = FindSuperTriangle(vertices);
-            Console.WriteLine("Super: " + superTriangle);
             Vertex[] superVertices = superTriangle.GetVertices();
             triangles.Add(superTriangle);
 
@@ -234,15 +233,11 @@ namespace RadiantMapToWavefrontObj
                 foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
                     triangles.Remove(triangle);                                                         // remove triangle from triangulation
 
-                Console.WriteLine("2: " + polygon.Count);
-
                 foreach (Edge e in polygon)                                                             // for each edge in polygon do
                     triangles.Add(new Face(e.A, e.B, v));                                               // newTri := form a triangle from edge to point + add newTri to triangulation
             }
 
             List<Face> result = new List<Face>();
-
-            Console.WriteLine("3: " + triangles.Count);
 
             foreach (Face t in triangles)                                                               // for each triangle in triangulation
             {
@@ -252,8 +247,6 @@ namespace RadiantMapToWavefrontObj
                     && !curVertices.Contains(superVertices[2]))
                     result.Add(t);                                                                      // remove triangle from triangulation
             }
-
-            Console.WriteLine("4: " + result.Count);
 
             return result.ToArray();                                                                    // return triangulation
         }
