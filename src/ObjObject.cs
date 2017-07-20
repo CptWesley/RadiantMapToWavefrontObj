@@ -234,17 +234,17 @@ namespace RadiantMapToWavefrontObj
             {
                 if (v.X < minX)
                     minX = v.X;
-                else if (v.X > maxX)
+                if (v.X > maxX)
                     maxX = v.X;
 
                 if (v.Y < minY)
                     minY = v.Y;
-                else if (v.Y > maxY)
+                if (v.Y > maxY)
                     maxY = v.Y;
 
                 if (v.Z < minZ)
                     minZ = v.Z;
-                else if (v.Z > maxZ)
+                if (v.Z > maxZ)
                     maxZ = v.Z;
             }
 
