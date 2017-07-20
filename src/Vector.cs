@@ -33,6 +33,12 @@ namespace RadiantMapToWavefrontObj
             return Math.Sqrt(X*X+Y*Y+Z*Z);
         }
 
+        // Calculates the squared length of a vector.
+        public double SquareLength()
+        {
+            return X*X + Y*Y + Z*Z;
+        }
+
         // Returns a unit version of this vector.
         public Vector Unit()
         {

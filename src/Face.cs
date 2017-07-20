@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace RadiantMapToWavefrontObj
 {
     public class Face
@@ -11,10 +12,19 @@ namespace RadiantMapToWavefrontObj
             _vertices = new Vertex[3];
         }
 
-        // Empty contructor that creates a new face with 3 vertices.
+        // Contructor that creates a new face with 3 vertices.
         public Face(Vertex[] vertices)
         {
             _vertices = vertices;
+        }
+
+        // Contructor that creates a new face with 3 vertices.
+        public Face(Vertex a, Vertex b, Vertex c)
+        {
+            _vertices = new Vertex[3];
+            _vertices[0] = a;
+            _vertices[1] = b;
+            _vertices[2] = c;
         }
 
         // Returns the vertices of the face.
@@ -64,6 +74,34 @@ namespace RadiantMapToWavefrontObj
             Vector v2 = (Vector)_vertices[2] - (Vector)_vertices[0];
 
             return Vector.CrossProduct(v1, v2) * -1;
+        }
+
+        // Finds the center and radius of a circumcircle of this triangle.
+        public Tuple<Vertex, double> GetCircumsphere()
+        {
+            // Find center.
+            Vector v0 = (Vector)_vertices[1] - (Vector)_vertices[0];
+            Vector v1 = (Vector)_vertices[2] - (Vector)_vertices[0];
+
+            Vector vx = Vector.CrossProduct(v0, v1);
+
+            Vector centerVector = (Vector.CrossProduct(vx, v0) * v1.SquareLength() + Vector.CrossProduct(v1, vx) * v0.SquareLength()) / (2 * vx.SquareLength());
+            Vertex center = _vertices[0] + centerVector;
+
+            // Find radius.
+            double radius = centerVector.Length();
+
+            return new Tuple<Vertex, double>(center, radius);
+        }
+
+        // Finds and returns the edges of this triangle.
+        public Edge[] GetEdges()
+        {
+            Edge[] edges = new Edge[3];
+            edges[0] = new Edge(_vertices[0], _vertices[1]);
+            edges[1] = new Edge(_vertices[1], _vertices[2]);
+            edges[2] = new Edge(_vertices[2], _vertices[0]);
+            return edges;
         }
 
         // Returns a stringified version of the object.

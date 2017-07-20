@@ -57,8 +57,20 @@ namespace RadiantMapToWavefrontObj
             return new Vertex(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
+        // Override + operator for vectors.
+        public static Vertex operator +(Vertex a, Vector b)
+        {
+            return new Vertex(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
         // Override - operator.
         public static Vertex operator -(Vertex a, Vertex b)
+        {
+            return new Vertex(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
+        // Override - operator for vectors.
+        public static Vertex operator -(Vertex a, Vector b)
         {
             return new Vertex(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }

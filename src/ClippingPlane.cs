@@ -4,8 +4,12 @@ namespace RadiantMapToWavefrontObj
 {
     public class ClippingPlane
     {
-        public readonly double A, B, C, D;
+        public readonly double D;
         public readonly Vector Normal;
+
+        public double A => Normal.X;
+        public double B => Normal.Y;
+        public double C => Normal.Z;
 
         // Constructor for a clipping plane.
         public ClippingPlane(Vertex v1, Vertex v2, Vertex v3)
@@ -14,9 +18,6 @@ namespace RadiantMapToWavefrontObj
             Vector vector2 = new Vector(v3.X - v1.X, v3.Y - v1.Y, v3.Z - v1.Z).Unit();
 
             Normal = Vector.CrossProduct(vector1, vector2).Unit();
-            A = Normal.X;
-            B = Normal.Y;
-            C = Normal.Z;                                                       // NB: A,B,C = Normal.X,Y,Z
             D = -(A * v2.X + B * v2.Y + C * v2.Z);
         }
 

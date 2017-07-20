@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RadiantMapToWavefrontObj
 {
@@ -142,50 +141,142 @@ namespace RadiantMapToWavefrontObj
         private static Face[] CreateFaces(Vertex[] vertices, ClippingPlane[] planes)
         {
             List<Face> faces = new List<Face>();
-            double centerOffset = 1e-4;
 
             for (int i = 0; i < planes.Length; ++i)
             {
-                // Create a center point, we need a tiny offset to make sure we don't mess up for perfectly symetrical shapes.
-                double centerX = centerOffset;
-                double centerY = centerOffset;
-                double centerZ = centerOffset;
-
-                List<Vertex> verts = planes[i].FindVerticesInPlane(vertices).ToList();
+                Vertex[] verts = planes[i].FindVerticesInPlane(vertices);
 
                 // Abort when there are no vertices anyway. Something went wrong...
-                if (verts.Count <= 0)
+                if (verts.Length < 3)
                     return null;
 
-                foreach (Vertex v in verts)
+                foreach (Face face in BowyerWatson(verts))
                 {
-                    centerX += v.X;
-                    centerY += v.Y;
-                    centerZ += v.Z;
-                }
-
-                Vertex center = new Vertex(centerX / verts.Count, centerY / verts.Count, centerZ / verts.Count);
-                center.SetNormal(planes[i].Normal);
-
-                // Calculate faces based on some hackish algorithm that seems to work so far. Might need replacement later.
-                // Algorithm:  1. Find vertex closest to the center point.
-                //             2. Sort the list of vertices based on the distance to the vertex found in 1.
-                //             3. Add faces in the following manner: {0,1,2}, {1,2,3}, {2,3,4}, etc...
-                //             4. Check if the face's normal is in the right direction, otherwise: invert it.
-                if (verts.Count >= 3)
-                {
-                    verts.Sort((el1, el2) => center.Distance(el1).CompareTo(center.Distance(el2)));
-                    verts.Sort((el1, el2) => verts[0].Distance(el1).CompareTo(verts[0].Distance(el2)));
-                    for (int j = 0; j < verts.Count - 2; ++j)
-                    {
-                        Face face = new Face(verts.GetRange(j, 3).ToArray());
-                        FixNormal(face, planes[i].Normal);
-                        faces.Add(face);
-                    }
+                    FixNormal(face, planes[i].Normal);
+                    faces.Add(face);
                 }
             }
 
             return faces.ToArray();
+        }
+
+        // Apply Bowyer-Watson algorithm to triangulate all the points in a plane.
+        // Pseudo code taken from related wikipedia page and provided on the side in comments.
+        public static Face[] BowyerWatson(Vertex[] vertices)
+        {
+            List<Face> triangles = new List<Face>();
+
+            // Add super triangle to list.
+            Face superTriangle = FindSuperTriangle(vertices);
+            Vertex[] superVertices = superTriangle.GetVertices();
+            triangles.Add(superTriangle);
+
+            // Add points.
+            foreach (Vertex v in vertices)                                                              // for each point in pointList do
+            {
+                List<Face> badTriangles = new List<Face>();                                             // badTriangles := empty set
+                foreach (Face triangle in triangles)                                                    // for each triangle in triangulation do
+                {
+                    if (InCircumsphere(v, triangle))                                                    // if point is inside circumcircle of triangle
+                        badTriangles.Add(triangle);                                                     // add triangle to badTriangles
+                }
+
+                List<Edge> polygon = new List<Edge>();                                                  // polygon := empty set
+
+                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
+                {
+                    foreach (Edge edge in triangle.GetEdges())                                          // for each edge in triangle do
+                    {
+                        bool shared = false;
+                        foreach (Face otherTriangle in badTriangles)                                    // if edge is not shared by any other triangles in badTriangles
+                        {
+                            if (triangle == otherTriangle)
+                                continue;
+                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.GetInverse()))
+                            {
+                                shared = true;
+                                break;
+                            }
+                        }
+                        if (!shared)
+                            polygon.Add(edge);                                                          // add edge to polygon
+                    }
+                }
+
+                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
+                    triangles.Remove(triangle);                                                         // remove triangle from triangulation
+
+                foreach (Edge e in polygon)                                                             // for each edge in polygon do
+                    triangles.Add(new Face(e.A, e.B, v));                                               // newTri := form a triangle from edge to point + add newTri to triangulation
+            }
+
+            List<Face> result = new List<Face>();
+
+            foreach (Face t in triangles)                                                               // for each triangle in triangulation
+            {
+                Vertex[] curVertices = t.GetVertices();
+                if (!curVertices.Contains(superVertices[0])                                             // if triangle contains a vertex from original super-triangle
+                    && !curVertices.Contains(superVertices[1])
+                    && !curVertices.Contains(superVertices[2]))
+                    result.Add(t);                                                                      // remove triangle from triangulation
+            }
+
+            return result.ToArray();                                                                    // return triangulation
+        }
+
+        // Finds the Bowyer-Watson super triangle of a set of vertices.
+        private static Face FindSuperTriangle(Vertex[] vertices)
+        {
+            // Setup super triangle.
+            double minX, maxX, minY, maxY, minZ, maxZ;
+
+            minX = minY = minZ = Double.MaxValue;
+            maxX = maxY = maxZ = Double.MinValue;
+
+            foreach (Vertex v in vertices)
+            {
+                if (v.X < minX)
+                    minX = v.X;
+                if (v.X > maxX)
+                    maxX = v.X;
+
+                if (v.Y < minY)
+                    minY = v.Y;
+                if (v.Y > maxY)
+                    maxY = v.Y;
+
+                if (v.Z < minZ)
+                    minZ = v.Z;
+                if (v.Z > maxZ)
+                    maxZ = v.Z;
+            }
+
+            ClippingPlane plane = new ClippingPlane(vertices[0], vertices[1], vertices[2]);
+
+            Vertex a = new Vertex(minX, minY, minZ);
+            Vertex b = new Vertex(maxX, maxY, maxZ);
+
+            Vector ab = (Vector)(b - a);
+            a -= 10*ab;
+            b += 10*ab;
+
+            Vector triBase = Vector.CrossProduct(ab, plane.Normal).Unit();
+
+            double length = ((Vector)(b - a)).Length();
+
+            Vertex c = a + triBase * length;
+            Vertex d = a - triBase * length;
+
+            return new Face(b, c, d);
+        }
+
+        // Checks if a point lies in the circumsphere of a face.
+        private static bool InCircumsphere(Vertex point, Face face)
+        {
+            Tuple<Vertex, double> cs = face.GetCircumsphere();
+            if (point.Distance(cs.Item1) < cs.Item2)
+                return true;
+            return false;
         }
 
         // Fix normals of faces pointing in the wrong direction.
