@@ -43,7 +43,7 @@ namespace RadiantMapToWavefrontObj
         }
 
         // Check if this vertex lies on a certain clipping plane.
-        public bool OnPlane(ClippingPlane plane)
+        public bool OnPlane(Plane plane)
         {
             double left = X * plane.A + Y * plane.B + Z * plane.C;
             double right = plane.D;
