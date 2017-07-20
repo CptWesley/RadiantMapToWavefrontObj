@@ -225,7 +225,7 @@ namespace RadiantMapToWavefrontObj
         private static Face FindSuperTriangle(Vertex[] vertices)
         {
             // Setup super triangle.
-            double minX, maxX, dX, midX, minY, maxY, dY, midY, minZ, maxZ, dZ, midZ;
+            double minX, maxX, minY, maxY, minZ, maxZ;
 
             minX = minY = minZ = Double.MaxValue;
             maxX = maxY = maxZ = Double.MinValue;
@@ -248,25 +248,23 @@ namespace RadiantMapToWavefrontObj
                     maxZ = v.Z;
             }
 
-            double d = 10;
+            ClippingPlane plane = new ClippingPlane(vertices[0], vertices[1], vertices[2]);
 
-            maxX += d;
-            maxY += d;
-            maxZ += d;
-            minX -= d;
-            minY -= d;
-            minZ -= d;
-            
+            Vertex a = new Vertex(minX, minY, minZ);
+            Vertex b = new Vertex(maxX, maxY, maxZ);
 
-            dX = maxX - minX;
-            dY = maxY - minY;
-            dZ = maxZ - minZ;
+            Vector ab = (Vector)(b - a);
+            a -= 10*ab;
+            b += 10*ab;
 
-            midX = dX / 2 + minX;
-            midY = dY / 2 + minY;
-            midZ = dZ / 2 + minZ;
+            Vector triBase = Vector.CrossProduct(ab, plane.Normal).Unit();
 
-            return new Face(new Vertex(minX, minY, minZ), new Vertex(midX, maxY, minZ), new Vertex(maxX, minY, minZ));
+            double length = ((Vector)(b - a)).Length();
+
+            Vertex c = a + triBase * length;
+            Vertex d = a - triBase * length;
+
+            return new Face(b, c, d);
         }
 
         // Checks if a point lies in the circumsphere of a face.
