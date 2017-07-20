@@ -5,8 +5,8 @@ namespace RadiantMapToWavefrontObj
 {
     public class ObjObject
     {
-        public readonly Vertex[] Vertices;
-        public readonly Face[] Faces;
+        public Vertex[] Vertices { get; private set; }
+        public Face[] Faces { get; private set; }
         private string _name;
 
         // Constructor for an .obj object.
@@ -70,6 +70,20 @@ namespace RadiantMapToWavefrontObj
             }
 
             return res;
+        }
+
+        // Removes all faces containing a texture listed in the filter.
+        public void FilterTextures(string[] filter)
+        {
+            List<Face> newFaces = new List<Face>();
+
+            foreach (Face face in Faces)
+            {
+                if (!filter.Contains(face.Texture))
+                    newFaces.Add(face);
+            }
+
+            Faces = newFaces.ToArray();
         }
 
         // Converts a radiant brush to an obj object.
