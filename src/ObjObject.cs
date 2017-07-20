@@ -151,7 +151,10 @@ namespace RadiantMapToWavefrontObj
                     return null;
 
                 foreach (Face face in BowyerWatson(verts))
+                {
+                    FixNormal(face, planes[i].Normal);
                     faces.Add(face);
+                }
             }
 
             return faces.ToArray();
