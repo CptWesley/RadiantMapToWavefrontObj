@@ -15,6 +15,7 @@ namespace RadiantMapToWavefrontObj
             _name = name;
             Vertices = vertices;
             Faces = faces;
+            Cleanup();
         }
 
         // Returns the name of the object.
@@ -84,6 +85,32 @@ namespace RadiantMapToWavefrontObj
             }
 
             Faces = newFaces.ToArray();
+            Cleanup();
+        }
+
+        // Remove all vertices that have no faces.
+        private void Cleanup()
+        {
+            List<Vertex> newVertices = new List<Vertex>();
+
+            foreach (Vertex vertex in Vertices)
+            {
+                bool contained = false;
+
+                foreach (Face face in Faces)
+                {
+                    if (face.Contains(vertex))
+                    {
+                        contained = true;
+                        break;
+                    }
+                }
+
+                if (contained)
+                    newVertices.Add(vertex);
+            }
+
+            Vertices = newVertices.ToArray();
         }
 
         // Converts a radiant brush to an obj object.

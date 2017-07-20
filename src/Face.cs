@@ -111,6 +111,12 @@ namespace RadiantMapToWavefrontObj
             return edges;
         }
 
+        // Checks if a face contains a certain vertex.
+        public bool Contains(Vertex vertex)
+        {
+            return _vertices.Contains(vertex);
+        }
+
         // Returns a stringified version of the object.
         public override string ToString()
         {
