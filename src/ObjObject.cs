@@ -251,7 +251,7 @@ namespace RadiantMapToWavefrontObj
                     maxZ = v.Z;
             }
 
-            ClippingPlane plane = new ClippingPlane(vertices[0], vertices[1], vertices[2]);
+            Plane plane = new Plane(vertices[0], vertices[1], vertices[2]);
 
             Vertex a = new Vertex(minX, minY, minZ);
             Vertex b = new Vertex(maxX, maxY, maxZ);
