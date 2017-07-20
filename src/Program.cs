@@ -6,6 +6,9 @@ namespace RadiantMapToWavefrontObj
 {
     internal class Program
     {
+        private static double _scale = 0.01;
+        private static bool _autoclose = false;
+
         static void Main(string[] args)
         {
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
@@ -19,7 +22,9 @@ namespace RadiantMapToWavefrontObj
 
             // Wait for console input before closing.
             Console.WriteLine("\nPress any key to close this window...");
-            Console.ReadKey();
+
+            if (!_autoclose)
+                Console.ReadKey();
         }
 
         // Convert .map file to .obj file.
@@ -32,7 +37,7 @@ namespace RadiantMapToWavefrontObj
             RadiantMap map = RadiantMap.Parse(path);
             WavefrontObj obj = WavefrontObj.CreateFromRadiantMap(map);
 
-            obj.SaveFile(Path.GetFileNameWithoutExtension(path) + ".obj", 0.01);
+            obj.SaveFile(Path.GetFileNameWithoutExtension(path) + ".obj", _scale);
 
             DateTime endTime = DateTime.Now;
             Console.WriteLine("Finished in: " + (endTime-startTime).Milliseconds + "ms.");
