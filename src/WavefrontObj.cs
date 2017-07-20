@@ -29,7 +29,7 @@ namespace RadiantMapToWavefrontObj
         }
 
         // Returns .obj formatted text of this object.
-        public string ToCode(double scale, string[] ignores)
+        public string ToCode(double scale)
         {
             string res = "# Exported using Wesley Baartman's RadiantMapToWavefrontObj software.\n\n";
 
@@ -38,41 +38,17 @@ namespace RadiantMapToWavefrontObj
             // Adds code for each object contained.
             foreach (ObjObject obj in Objects)
             {
-                res += obj.ToCode(scale, faceOffset, ignores) + "\n";
+                res += obj.ToCode(scale, faceOffset) + "\n";
                 faceOffset += obj.Vertices.Length;
             }
 
             return res;
         }
 
-        // Overload that does not require ignores.
-        public string ToCode(double scale)
-        {
-            return ToCode(scale, new string[0]);
-        }
-
-        // Overload that does not require ignores or scale.
-        public string ToCode()
-        {
-            return ToCode(1, new string[0]);
-        }
-
         // Saves this object to an .obj file.
-        public void SaveFile(string path, double scale, string[] ignores)
-        {
-            File.WriteAllText(path, ToCode(scale, ignores));
-        }
-
-        // Overload that does not require ignores.
         public void SaveFile(string path, double scale)
         {
             File.WriteAllText(path, ToCode(scale));
-        }
-
-        // Overload that does not require ignores or scale.
-        public void SaveFile(string path)
-        {
-            File.WriteAllText(path, ToCode());
         }
     }
 }
