@@ -108,6 +108,7 @@
     <Compile Include="ArrayExtension.cs" />
     <Compile Include="Brush.cs" />
     <Compile Include="ClippingPlane.cs" />
+    <Compile Include="Patch.cs" />
     <Compile Include="Plane.cs" />
     <Compile Include="Edge.cs" />
     <Compile Include="Face.cs" />
