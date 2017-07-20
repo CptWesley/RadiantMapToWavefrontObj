@@ -14,16 +14,22 @@ namespace RadiantMapToWavefrontObj
             Version version = Assembly.GetExecutingAssembly().GetName().Version;
             Console.WriteLine("RadiantMapToWavefrontObj version " + version.Major + '.' + version.Minor + '.' + version.Build);
 
+            bool success = false;
+
             // Check if the file exists.
             if (args.Length > 0)
             {
                 foreach (string arg in args)
                 {
                     if (File.Exists(arg) && Path.GetExtension(arg) == ".map")
+                    {
                         ConvertFile(arg);
+                        success = true;
+                    }
                 }
             }
-            else
+            
+            if (!success)
                 Console.WriteLine("Invalid file.");
 
             // Wait for console input before closing.
