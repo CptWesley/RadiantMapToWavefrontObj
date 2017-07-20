@@ -15,8 +15,14 @@ namespace RadiantMapToWavefrontObj
             Console.WriteLine("RadiantMapToWavefrontObj version " + version.Major + '.' + version.Minor + '.' + version.Build);
 
             // Check if the file exists.
-            if (args.Length > 0 && File.Exists(args[0]))
-                ConvertFile(args[0]);
+            if (args.Length > 0)
+            {
+                foreach (string arg in args)
+                {
+                    if (File.Exists(arg) && Path.GetExtension(arg) == ".map")
+                        ConvertFile(arg);
+                }
+            }
             else
                 Console.WriteLine("Invalid file.");
 
