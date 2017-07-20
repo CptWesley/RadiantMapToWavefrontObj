@@ -21,7 +21,7 @@ namespace RadiantMapToWavefrontObj
         public static bool FindIntersection(Plane a, Plane b, Plane c, out Vertex intersection)
         {
             // Calculates the possible intersection point using the Cramer's rule.
-            double det = CallConvThiscall.Determinant(a.A, a.B, a.C, b.A, b.B, b.C, c.A, c.B, c.C);
+            double det = Determinant(a.A, a.B, a.C, b.A, b.B, b.C, c.A, c.B, c.C);
             if (det >= -1e-6 && det <= 1e-6)
             {
                 intersection = null;
