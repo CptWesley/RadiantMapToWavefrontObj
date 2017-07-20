@@ -42,7 +42,7 @@ namespace RadiantMapToWavefrontObj
                     Vertex v2 = Vertex.CreateFromCode(m.Groups[5].ToString());
                     Vertex v3 = Vertex.CreateFromCode(m.Groups[9].ToString());
 
-                    planes.Add(new ClippingPlane(v1, v2, v3));
+                    planes.Add(new ClippingPlane(v1, v2, v3, m.Groups[13].ToString()));
                 }
             }
 

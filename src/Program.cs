@@ -9,6 +9,7 @@ namespace RadiantMapToWavefrontObj
     {
         private static double _scale = 0.01;
         private static bool _autoclose = false;
+        private static string[] _textureFilter = new string[0];
 
         static void Main(string[] args)
         {
@@ -49,6 +50,9 @@ namespace RadiantMapToWavefrontObj
             RadiantMap map = RadiantMap.Parse(path);
             WavefrontObj obj = WavefrontObj.CreateFromRadiantMap(map);
 
+            if (_textureFilter.Length > 0)
+                obj.FilterTextures(_textureFilter);
+
             obj.SaveFile(Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".obj", _scale);
 
             DateTime endTime = DateTime.Now;
@@ -58,7 +62,7 @@ namespace RadiantMapToWavefrontObj
         // Handle a settings argument.
         private static void HandleArgument(string arg)
         {
-            string pattern = @"-(\w+)=(\w+)";
+            string pattern = @"-(\w+)=(\S+)";
             Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
             Match m = regex.Match(arg);
             if (m.Success)
@@ -78,6 +82,11 @@ namespace RadiantMapToWavefrontObj
                     double scale;
                     if (Double.TryParse(mode, out scale))
                         _scale = scale;
+                }
+                else if (type == "filter")
+                {
+                    if (File.Exists(mode))
+                        _textureFilter = File.ReadAllLines(mode);
                 }
             }
         }

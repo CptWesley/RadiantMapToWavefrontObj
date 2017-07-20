@@ -5,8 +5,8 @@ namespace RadiantMapToWavefrontObj
 {
     public class ObjObject
     {
-        public readonly Vertex[] Vertices;
-        public readonly Face[] Faces;
+        public Vertex[] Vertices { get; private set; }
+        public Face[] Faces { get; private set; }
         private string _name;
 
         // Constructor for an .obj object.
@@ -15,6 +15,7 @@ namespace RadiantMapToWavefrontObj
             _name = name;
             Vertices = vertices;
             Faces = faces;
+            Cleanup();
         }
 
         // Returns the name of the object.
@@ -70,6 +71,52 @@ namespace RadiantMapToWavefrontObj
             }
 
             return res;
+        }
+
+        // Removes all faces containing a texture listed in the filter.
+        public void FilterTextures(string[] filter)
+        {
+            if (Faces == null)
+                return;
+
+            List<Face> newFaces = new List<Face>();
+
+            foreach (Face face in Faces)
+            {
+                if (!filter.Contains(face.Texture))
+                    newFaces.Add(face);
+            }
+
+            Faces = newFaces.ToArray();
+            Cleanup();
+        }
+
+        // Remove all vertices that have no faces.
+        private void Cleanup()
+        {
+            if (Faces == null)
+                return;
+
+            List<Vertex> newVertices = new List<Vertex>();
+
+            foreach (Vertex vertex in Vertices)
+            {
+                bool contained = false;
+
+                foreach (Face face in Faces)
+                {
+                    if (face.Contains(vertex))
+                    {
+                        contained = true;
+                        break;
+                    }
+                }
+
+                if (contained)
+                    newVertices.Add(vertex);
+            }
+
+            Vertices = newVertices.ToArray();
         }
 
         // Converts a radiant brush to an obj object.
@@ -153,6 +200,7 @@ namespace RadiantMapToWavefrontObj
                 foreach (Face face in BowyerWatson(verts))
                 {
                     FixNormal(face, planes[i].Normal);
+                    face.SetTexture(planes[i].Texture);
                     faces.Add(face);
                 }
             }
@@ -251,7 +299,7 @@ namespace RadiantMapToWavefrontObj
                     maxZ = v.Z;
             }
 
-            ClippingPlane plane = new ClippingPlane(vertices[0], vertices[1], vertices[2]);
+            Plane plane = new Plane(vertices[0], vertices[1], vertices[2]);
 
             Vertex a = new Vertex(minX, minY, minZ);
             Vertex b = new Vertex(maxX, maxY, maxZ);
