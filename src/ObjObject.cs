@@ -30,7 +30,7 @@ namespace RadiantMapToWavefrontObj
         }
 
         // Returns .obj formatted code version of this object.
-        public string ToCode(double scale, int faceOffset)
+        public string ToCode(double scale, int faceOffset, string[] ignores)
         {
             string res = "o " + _name + "\n";
 
@@ -70,6 +70,30 @@ namespace RadiantMapToWavefrontObj
             }
 
             return res;
+        }
+
+        // Overload that does not take into account ignores.
+        public string ToCode(double scale, int faceOffset)
+        {
+            return ToCode(scale, faceOffset, new string[0]);
+        }
+
+        // Overload that does not take into account faceOffset.
+        public string ToCode(double scale, string[] ignores)
+        {
+            return ToCode(scale, 0, ignores);
+        }
+
+        // Overload that does not take into account ignores and/or faceOffset.
+        public string ToCode(double scale)
+        {
+            return ToCode(scale, 0, new string[0]);
+        }
+
+        // Overload that does not take any parameters.
+        public string ToCode()
+        {
+            return ToCode(1, 0, new string[0]);
         }
 
         // Converts a radiant brush to an obj object.

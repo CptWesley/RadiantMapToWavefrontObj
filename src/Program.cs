@@ -49,7 +49,7 @@ namespace RadiantMapToWavefrontObj
             RadiantMap map = RadiantMap.Parse(path);
             WavefrontObj obj = WavefrontObj.CreateFromRadiantMap(map);
 
-            obj.SaveFile(Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".obj", _scale);
+            obj.SaveFile(Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".obj", _scale, new string[0]);
 
             DateTime endTime = DateTime.Now;
             Console.WriteLine("Finished in: " + (endTime-startTime).Milliseconds + "ms.");
