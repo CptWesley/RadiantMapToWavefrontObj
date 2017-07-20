@@ -11,6 +11,7 @@ namespace RadiantMapToWavefrontObj
         public WavefrontObj(ObjObject[] objects)
         {
             Objects = objects;
+            Cleanup();
         }
 
         // Removes all faces containing a texture listed in the filter from all subobjects.
@@ -20,6 +21,7 @@ namespace RadiantMapToWavefrontObj
             {
                 obj.FilterTextures(filter);
             }
+            Cleanup();
         }
 
         // Returns .obj formatted text of this object.
@@ -43,6 +45,21 @@ namespace RadiantMapToWavefrontObj
         public void SaveFile(string path, double scale)
         {
             File.WriteAllText(path, ToCode(scale));
+        }
+
+        // Removes objects that lack faces or vertices.
+        private void Cleanup()
+        {
+            List<ObjObject> newObjects = new List<ObjObject>();
+
+            foreach (ObjObject obj in Objects)
+            {
+                if (obj.Faces != null && obj.Faces.Length > 0 && obj.Vertices.Length > 0)
+                    newObjects.Add(obj);
+            }
+
+            Objects = newObjects.ToArray();
+
         }
 
         // Converts a RadiantMap object to a WavefrontObj object.
