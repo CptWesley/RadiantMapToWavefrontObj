@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace RadiantMapToWavefrontObj
 {
@@ -24,6 +25,8 @@ namespace RadiantMapToWavefrontObj
                     ConvertFile(arg);
                     success = true;
                 }
+                else
+                    HandleArgument(arg);
             }
 
             if (!success)
@@ -50,6 +53,33 @@ namespace RadiantMapToWavefrontObj
 
             DateTime endTime = DateTime.Now;
             Console.WriteLine("Finished in: " + (endTime-startTime).Milliseconds + "ms.");
+        }
+
+        // Handle a settings argument.
+        private static void HandleArgument(string arg)
+        {
+            string pattern = @"-(\w+)=(\w+)";
+            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            Match m = regex.Match(arg);
+            if (m.Success)
+            {
+                string type = m.Groups[1].ToString();
+                string mode = m.Groups[2].ToString();
+
+                if (type == "autoclose")
+                {
+                    if (mode == "false" || mode == "0")
+                        _autoclose = false;
+                    else if (mode == "true" || mode == "1")
+                        _autoclose = true;
+                }
+                else if (type == "scale")
+                {
+                    double scale;
+                    if (Double.TryParse(mode, out scale))
+                        _scale = scale;
+                }
+            }
         }
     }
 }
