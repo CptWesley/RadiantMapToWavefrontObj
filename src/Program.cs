@@ -16,19 +16,16 @@ namespace RadiantMapToWavefrontObj
 
             bool success = false;
 
-            // Check if the file exists.
-            if (args.Length > 0)
+            // Check for each argument if it is a .map we should convert.
+            foreach (string arg in args)
             {
-                foreach (string arg in args)
+                if (File.Exists(arg) && Path.GetExtension(arg) == ".map")
                 {
-                    if (File.Exists(arg) && Path.GetExtension(arg) == ".map")
-                    {
-                        ConvertFile(arg);
-                        success = true;
-                    }
+                    ConvertFile(arg);
+                    success = true;
                 }
             }
-            
+
             if (!success)
                 Console.WriteLine("Invalid file.");
 
