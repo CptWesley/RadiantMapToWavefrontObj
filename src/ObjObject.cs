@@ -76,6 +76,9 @@ namespace RadiantMapToWavefrontObj
         // Removes all faces containing a texture listed in the filter.
         public void FilterTextures(string[] filter)
         {
+            if (Faces == null)
+                return;
+
             List<Face> newFaces = new List<Face>();
 
             foreach (Face face in Faces)
@@ -91,6 +94,9 @@ namespace RadiantMapToWavefrontObj
         // Remove all vertices that have no faces.
         private void Cleanup()
         {
+            if (Faces == null)
+                return;
+
             List<Vertex> newVertices = new List<Vertex>();
 
             foreach (Vertex vertex in Vertices)
