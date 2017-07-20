@@ -153,6 +153,7 @@ namespace RadiantMapToWavefrontObj
                 foreach (Face face in BowyerWatson(verts))
                 {
                     FixNormal(face, planes[i].Normal);
+                    face.SetTexture(planes[i].Texture);
                     faces.Add(face);
                 }
             }

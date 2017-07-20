@@ -5,6 +5,7 @@ namespace RadiantMapToWavefrontObj
     public class Face
     {
         private Vertex[] _vertices;
+        public string Texture { get; private set; }
 
         // Empty contructor that creates an empty face.
         public Face()
@@ -25,6 +26,12 @@ namespace RadiantMapToWavefrontObj
             _vertices[0] = a;
             _vertices[1] = b;
             _vertices[2] = c;
+        }
+
+        // Set the texture of a clipping plane.
+        public void SetTexture(string texture)
+        {
+            Texture = texture;
         }
 
         // Returns the vertices of the face.
