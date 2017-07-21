@@ -26,7 +26,7 @@ namespace RadiantMapToWavefrontObj
         // Adds a vertex to the grid in the next available slot.
         public void Add(Vertex vertex)
         {
-            Grid[_x][_y] = vertex;
+            Grid[_y][_x] = vertex;
 
             if (_x < Grid[0].Length-1)
                 _x++;
