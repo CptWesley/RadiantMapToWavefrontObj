@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace RadiantMapToWavefrontObj
@@ -21,6 +22,20 @@ namespace RadiantMapToWavefrontObj
                 for (int j = 0; j < Grid[i].Length; ++j)
                     Grid[i][j] = null;
             }
+        }
+
+        // Collect all vertices and return them.
+        public Vertex[] GetVertices()
+        {
+            List<Vertex> vertices = new List<Vertex>(); 
+
+            foreach (Vertex[] row in Grid)
+            {
+                foreach (Vertex vert in row)
+                    vertices.Add(vert);
+            }
+
+            return vertices.ToArray();
         }
 
         // Adds a vertex to the grid in the next available slot.
