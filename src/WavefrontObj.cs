@@ -74,6 +74,13 @@ namespace RadiantMapToWavefrontObj
                 objects.Add(obj);
             }
 
+            for (int i = 0; i < map.Patches.Length; ++i)
+            {
+                Patch patch = map.Patches[i];
+                ObjObject obj = ObjObject.CreateFromPatch("Patch_" + i, patch);
+                objects.Add(obj);
+            }
+
             return new WavefrontObj(objects.ToArray());
         }
     }

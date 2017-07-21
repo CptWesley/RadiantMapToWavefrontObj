@@ -1,16 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RadiantMapToWavefrontObj
 {
     public class RadiantMap
     {
-        public readonly Brush[] Brushes;
+        private List<Brush> _brushes;
+        private List<Patch> _patches;
+        public Brush[] Brushes => _brushes.ToArray();
+        public Patch[] Patches => _patches.ToArray();
 
         // Constructor that creates a radiant map object.
-        public RadiantMap(Brush[] brushes)
+        public RadiantMap()
         {
-            Brushes = brushes;
+            _brushes = new List<Brush>();
+            _patches = new List<Patch>();
+        }
+
+        // Adds a brush to the radiant map.
+        public void Add(Brush brush)
+        {
+            _brushes.Add(brush);
+        }
+
+        // Adds a patch to the radiant map.
+        public void Add(Patch patch)
+        {
+            _patches.Add(patch);
         }
 
         // Returns a string format of the entire radiant map.
@@ -34,8 +51,10 @@ namespace RadiantMapToWavefrontObj
             string[] content = File.ReadAllLines(path);
             bool started = false;
             bool inBrush = false;
+            bool inPatch = false;
             List<string> brushLines = null;
-            List<Brush> brushes = new List<Brush>();
+
+            RadiantMap map = new RadiantMap();
 
             for (int i = 0; i < content.Length; ++i)
             {
@@ -45,21 +64,29 @@ namespace RadiantMapToWavefrontObj
 
                 if (started)
                 {
-                    if (content[i][0] == '{')
+                    if (content[i].Contains("{"))
                     {
                         if (!inBrush)
                         {
                             inBrush = true;
                             brushLines = new List<string>();
+                            brushLines.Add(content[i]);
                         }
+                        else if (!inPatch)
+                            inPatch = true;
                         else
                             return null;
                     }
-                    else if (content[i][0] == '}')
+                    else if (content[i].Contains("}"))
                     {
-                        if (inBrush)
+                        if (inPatch)
                         {
-                            brushes.Add(Brush.CreateFromCode(brushLines.ToArray()));
+                            map.Add(Patch.CreateFromCode(brushLines.ToArray()));
+                            inPatch = false;
+                        }
+                        else if (inBrush)
+                        {
+                            map.Add(Brush.CreateFromCode(brushLines.ToArray()));
                             inBrush = false;
                             brushLines = new List<string>();
                         }
@@ -77,7 +104,7 @@ namespace RadiantMapToWavefrontObj
 
             }
 
-            return new RadiantMap(brushes.ToArray());
+            return map;
         }
     }
 }
