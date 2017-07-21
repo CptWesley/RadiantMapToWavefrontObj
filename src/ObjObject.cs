@@ -129,6 +129,15 @@ namespace RadiantMapToWavefrontObj
             return new ObjObject(name, vertices, faces);
         }
 
+        // Converts a radiant patch to an obj object.
+        public static ObjObject CreateFromPatch(string name, Patch patch)
+        {
+            Vertex[] vertices = patch.GetVertices();
+            Face[] faces = CreateFaces(patch.Grid);
+
+            return new ObjObject(name, vertices, faces);
+        }
+
         // Create normals of the object based on the clipping plane intersections.
         private static Vector[] CreateNormals(ClippingPlane[] planes)
         {
@@ -346,6 +355,26 @@ namespace RadiantMapToWavefrontObj
             if (normal.DirectionEquals(faceNormal))
                 return true;
             return false;
+        }
+
+        // Creates faces from a grid of vertices.
+        private static Face[] CreateFaces(Vertex[][] grid)
+        {
+            List<Face> faces = new List<Face>();
+
+            for (int x = 0; x < grid.Length; ++x)
+            {
+                for (int y = 0; y < grid[x].Length; ++y)
+                {
+                    if (x + 1 < grid.Length && y + 1 < grid[x].Length)
+                    {
+                        faces.Add(new Face(grid[x][y], grid[x+1][y], grid[x][y+1]));
+                        faces.Add(new Face(grid[x][y+1], grid[x+1][y], grid[x+1][y+1]));
+                    }
+                }
+            }
+
+            return faces.ToArray();
         }
     }
 }
