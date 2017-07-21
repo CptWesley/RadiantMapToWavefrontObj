@@ -104,7 +104,6 @@ namespace RadiantMapToWavefrontObj
 
             }
 
-            return new RadiantMap(brushes.ToArray());
             return map;
         }
     }
