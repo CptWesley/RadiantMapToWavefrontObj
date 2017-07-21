@@ -1,16 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace RadiantMapToWavefrontObj
 {
     public class RadiantMap
     {
-        public readonly Brush[] Brushes;
+        private List<Brush> _brushes;
+        private List<Patch> _patches;
+        public Brush[] Brushes => _brushes.ToArray();
+        public Patch[] Patches => _patches.ToArray();
 
         // Constructor that creates a radiant map object.
-        public RadiantMap(Brush[] brushes)
+        public RadiantMap()
         {
-            Brushes = brushes;
+            _brushes = new List<Brush>();
+            _patches = new List<Patch>();
+        }
+
+        // Adds a brush to the radiant map.
+        public void Add(Brush brush)
+        {
+            _brushes.Add(brush);
+        }
+
+        // Adds a patch to the radiant map.
+        public void Add(Patch patch)
+        {
+            _patches.Add(patch);
         }
 
         // Returns a string format of the entire radiant map.
