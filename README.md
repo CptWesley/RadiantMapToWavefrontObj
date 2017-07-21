@@ -10,7 +10,10 @@ Drag and drop a .map file onto the .exe
 - `filter` (e.g. `-filter=cod1filter.txt`)
 
 ### Confirmed working for:
-- GtkRadiant 1.6.5 Wolfenstein: Enemy Territory  
+- GtkRadiant 1.6.5 Wolfenstein: Enemy Territory *(brush+patches)*
+- GtkRadiant 1.5.0 Wolfenstein: Enemy Territory *(brush+patches)*
+- CoD Radiant *(brush+patches)*
+- CoDWaW Radiant *(brush)*
 
 (*if there are any .map formats not supported, please notify me*)  
 
