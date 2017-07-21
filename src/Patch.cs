@@ -86,9 +86,9 @@ namespace RadiantMapToWavefrontObj
                 {
                     for (int i = 0; i < m.Count; ++i)
                     {
-                        Vertex v = new Vertex(Double.Parse(m[i].Groups[2].ToString(), System.Globalization.CultureInfo.InvariantCulture),
-                            Double.Parse(m[i].Groups[4].ToString(), System.Globalization.CultureInfo.InvariantCulture),
-                            Double.Parse(m[i].Groups[6].ToString(), System.Globalization.CultureInfo.InvariantCulture));
+                        Vertex v = new Vertex(-Double.Parse(m[i].Groups[2].ToString(), System.Globalization.CultureInfo.InvariantCulture),
+                            -Double.Parse(m[i].Groups[4].ToString(), System.Globalization.CultureInfo.InvariantCulture),
+                            -Double.Parse(m[i].Groups[6].ToString(), System.Globalization.CultureInfo.InvariantCulture));
 
                         if (patch != null)
                             patch.Add(v);
