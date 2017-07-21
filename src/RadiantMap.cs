@@ -34,8 +34,10 @@ namespace RadiantMapToWavefrontObj
             string[] content = File.ReadAllLines(path);
             bool started = false;
             bool inBrush = false;
+            bool inPatch = false;
             List<string> brushLines = null;
             List<Brush> brushes = new List<Brush>();
+            List<Patch> patches = new List<Patch>();
 
             for (int i = 0; i < content.Length; ++i)
             {
@@ -45,19 +47,27 @@ namespace RadiantMapToWavefrontObj
 
                 if (started)
                 {
-                    if (content[i][0] == '{')
+                    if (content[i].Contains("{"))
                     {
                         if (!inBrush)
                         {
                             inBrush = true;
                             brushLines = new List<string>();
+                            brushLines.Add(content[i]);
                         }
+                        else if (!inPatch)
+                            inPatch = true;
                         else
                             return null;
                     }
-                    else if (content[i][0] == '}')
+                    else if (content[i].Contains("}"))
                     {
-                        if (inBrush)
+                        if (inPatch)
+                        {
+                            patches.Add(Patch.CreateFromCode(brushLines.ToArray()));
+                            inPatch = false;
+                        }
+                        else if (inBrush)
                         {
                             brushes.Add(Brush.CreateFromCode(brushLines.ToArray()));
                             inBrush = false;
