@@ -1,4 +1,6 @@
 # RadiantMapToWavefrontObj
+A project that allows the conversion of Quake engine based brush maps to
+ 3D models.  
 Converts (Gtk)Radiant .map files to Wavefront .obj formatted files.
 
 ### Usage:
@@ -17,5 +19,6 @@ Drag and drop a .map file onto the .exe
 
 (*if there are any .map formats not supported, please notify me*)  
 
-### Latest Release
-[Latest Release](https://github.com/CptWesley/RadiantMapToWavefrontObj/releases/latest)
+### Links
+-[Latest Release](https://github.com/CptWesley/RadiantMapToWavefrontObj/releases/latest)
+-[SCRUM](https://waffle.io/CptWesley/RadiantMapToWavefrontObj)
