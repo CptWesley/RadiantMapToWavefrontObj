@@ -53,8 +53,8 @@ namespace RadiantMapToWavefrontObj
             bool inBrush = false;
             bool inPatch = false;
             List<string> brushLines = null;
-            List<Brush> brushes = new List<Brush>();
-            List<Patch> patches = new List<Patch>();
+
+            RadiantMap map = new RadiantMap();
 
             for (int i = 0; i < content.Length; ++i)
             {
@@ -81,12 +81,12 @@ namespace RadiantMapToWavefrontObj
                     {
                         if (inPatch)
                         {
-                            patches.Add(Patch.CreateFromCode(brushLines.ToArray()));
+                            map.Add(Patch.CreateFromCode(brushLines.ToArray()));
                             inPatch = false;
                         }
                         else if (inBrush)
                         {
-                            brushes.Add(Brush.CreateFromCode(brushLines.ToArray()));
+                            map.Add(Brush.CreateFromCode(brushLines.ToArray()));
                             inBrush = false;
                             brushLines = new List<string>();
                         }
@@ -105,6 +105,7 @@ namespace RadiantMapToWavefrontObj
             }
 
             return new RadiantMap(brushes.ToArray());
+            return map;
         }
     }
 }
