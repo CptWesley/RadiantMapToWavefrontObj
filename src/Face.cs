@@ -7,6 +7,12 @@ namespace RadiantMapToWavefrontObj
         private Vertex[] _vertices;
         public string Texture { get; private set; }
 
+        public Vertex this[int index]
+        {
+            get => _vertices[index];
+            set => _vertices[index] = value;
+        }
+
         // Empty contructor that creates an empty face.
         public Face()
         {

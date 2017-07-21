@@ -11,6 +11,12 @@ namespace RadiantMapToWavefrontObj
         private int _x;
         private int _y;
 
+        public Vertex[] this[int index]
+        {
+            get => Grid[index];
+            set => Grid[index] = value;
+        }
+
         // Constructor for a patch.
         public Patch(int width, int height)
         {
