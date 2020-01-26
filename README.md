@@ -3,6 +3,12 @@ A project that allows the conversion of Quake engine based brush maps to
  3D models.  
 Converts (Gtk)Radiant .map files to Wavefront .obj formatted files.
 
+
+### Building:
+````shell
+dotnet build
+````
+
 ### Usage:
 Drag and drop a .map file onto the .exe
 
