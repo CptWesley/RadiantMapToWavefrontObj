@@ -8,7 +8,6 @@ namespace RadiantMapToWavefrontObj
     internal class Program
     {
         private static double _scale = 0.01;
-        private static bool _autoclose = true;
         private static string[] _textureFilter = new string[0];
 
         static void Main(string[] args)
@@ -31,13 +30,9 @@ namespace RadiantMapToWavefrontObj
             }
 
             if (!success)
-                Console.WriteLine("Invalid file.");
+                Console.Error.WriteLine("Invalid file.");
+                Environment.Exit(1);
 
-            // Wait for console input before closing.
-            // Console.WriteLine("\nPress any key to close this window...");
-
-            if (!_autoclose)
-                Console.ReadKey();
         }
 
         // Convert .map file to .obj file.
@@ -70,14 +65,7 @@ namespace RadiantMapToWavefrontObj
                 string type = m.Groups[1].ToString();
                 string mode = m.Groups[2].ToString();
 
-                if (type == "autoclose")
-                {
-                    if (mode == "false" || mode == "0")
-                        _autoclose = false;
-                    else if (mode == "true" || mode == "1")
-                        _autoclose = true;
-                }
-                else if (type == "scale")
+                if (type == "scale")
                 {
                     double scale;
                     if (Double.TryParse(mode, out scale))
