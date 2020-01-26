@@ -8,7 +8,7 @@ namespace RadiantMapToWavefrontObj
     internal class Program
     {
         private static double _scale = 0.01;
-        private static bool _autoclose = false;
+        private static bool _autoclose = true;
         private static string[] _textureFilter = new string[0];
 
         static void Main(string[] args)
@@ -34,7 +34,7 @@ namespace RadiantMapToWavefrontObj
                 Console.WriteLine("Invalid file.");
 
             // Wait for console input before closing.
-            Console.WriteLine("\nPress any key to close this window...");
+            // Console.WriteLine("\nPress any key to close this window...");
 
             if (!_autoclose)
                 Console.ReadKey();
