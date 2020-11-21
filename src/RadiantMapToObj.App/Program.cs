@@ -56,7 +56,7 @@ namespace RadiantMapToWavefrontObj
             obj.SaveFile(Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".obj", _scale);
 
             DateTime endTime = DateTime.Now;
-            Console.WriteLine("Finished in: " + (endTime-startTime).Milliseconds + "ms.");
+            Console.WriteLine("Finished in: " + (endTime - startTime).Milliseconds + "ms.");
         }
 
         // Handle a settings argument.
