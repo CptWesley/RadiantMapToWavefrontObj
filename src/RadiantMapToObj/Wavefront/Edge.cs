@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Wavefront
 {
     /// <summary>
     /// Class for Edge.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Class for ClippingPlane.

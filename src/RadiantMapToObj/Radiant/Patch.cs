@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Represents a radiant patch.

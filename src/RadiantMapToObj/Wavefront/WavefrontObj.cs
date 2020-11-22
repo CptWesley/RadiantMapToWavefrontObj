@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RadiantMapToObj.Radiant;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Wavefront
 {
     /// <summary>
     /// Represents a wavefront obj file.

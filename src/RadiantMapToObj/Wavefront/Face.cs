@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Wavefront
 {
     /// <summary>
     /// Class for Faces.

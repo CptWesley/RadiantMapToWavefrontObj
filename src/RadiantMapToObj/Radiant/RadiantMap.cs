@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Represents a radiant map.

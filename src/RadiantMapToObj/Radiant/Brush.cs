@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Class for Brush.
