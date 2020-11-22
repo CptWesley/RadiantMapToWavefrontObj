@@ -44,9 +44,9 @@ namespace RadiantMapToObj.Wavefront
             // Write vertices.
             foreach (Vector vertex in Vertices)
             {
-                string x = (vertex.X * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
+                string x = (-vertex.X * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
                 string y = (-vertex.Z * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
-                string z = (-vertex.Y * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
+                string z = (vertex.Y * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
                 res += "v " + x + " " + y + " " + z + "\n";
             }
 
