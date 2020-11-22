@@ -120,7 +120,7 @@ namespace RadiantMapToObj.Wavefront
             => $"({A}, {B}, {C})";
 
         /// <inheritdoc/>
-        public bool Equals(Face other)
+        public bool Equals(Face? other)
         {
             if (other is null)
             {
