@@ -2,13 +2,15 @@
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.App
 {
     /// <summary>
     /// Entry class Program.
     /// </summary>
-    internal class Program
+    internal static class Program
     {
         private static double scale = 0.01;
         private static bool autoclose;
