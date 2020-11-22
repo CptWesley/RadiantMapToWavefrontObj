@@ -13,13 +13,12 @@ namespace RadiantMapToObj.Internal.Conversion
         /// Converts a radiant patch to an obj object.
         /// </summary>
         /// <param name="patch">The patch.</param>
-        /// <param name="name">The name.</param>
         /// <returns>A newly created obj object.</returns>
-        internal static ObjObject Convert(Patch patch, string name)
+        internal static ObjObject Convert(Patch patch)
         {
             IEnumerable<Vector> vertices = patch.Vertices;
             IEnumerable<Face> faces = CreateFaces(patch);
-            return new ObjObject(name, vertices, faces);
+            return new ObjObject(vertices, faces);
         }
 
         /// <summary>

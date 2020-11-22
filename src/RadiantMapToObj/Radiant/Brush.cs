@@ -22,7 +22,7 @@ namespace RadiantMapToObj.Radiant
         public IEnumerable<ClippingPlane> ClippingPlanes { get; }
 
         /// <inheritdoc/>
-        public ObjObject ToObjObject(string name)
-            => BrushConversionHelper.Convert(this, name);
+        public ObjObject ToObjObject()
+            => BrushConversionHelper.Convert(this);
     }
 }

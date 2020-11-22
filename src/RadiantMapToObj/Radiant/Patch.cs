@@ -40,10 +40,10 @@ namespace RadiantMapToObj.Radiant
         /// <param name="x">The x coordinate.</param>
         /// <param name="y">The y coordinate.</param>
         /// <returns>The vertex at the given coordinate.</returns>
-        public Vector this[int x, int y] => grid[x][y];
+        public Vector this[int x, int y] => grid[y][x];
 
         /// <inheritdoc/>
-        public ObjObject ToObjObject(string name)
-            => PatchConversionHelper.Convert(this, name);
+        public ObjObject ToObjObject()
+            => PatchConversionHelper.Convert(this);
     }
 }

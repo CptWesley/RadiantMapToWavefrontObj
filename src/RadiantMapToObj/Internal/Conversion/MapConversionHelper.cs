@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using RadiantMapToObj.Radiant;
 using RadiantMapToObj.Wavefront;
 
@@ -15,16 +15,6 @@ namespace RadiantMapToObj.Internal.Conversion
         /// <param name="map">The radiant map to convert.</param>
         /// <returns>A wavefront object created from a given radiant map.</returns>
         internal static WavefrontObj Convert(RadiantMap map)
-        {
-            List<ObjObject> objects = new List<ObjObject>();
-
-            int i = 0;
-            foreach (IRadiantEntity entity in map.Entities)
-            {
-                objects.Add(entity.ToObjObject($"Entity_{i++}"));
-            }
-
-            return new WavefrontObj(objects);
-        }
+            => new WavefrontObj(map.Entities.Select(x => x.ToObjObject()));
     }
 }

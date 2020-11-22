@@ -50,9 +50,10 @@ namespace RadiantMapToObj.Wavefront
             int faceOffset = 0;
 
             // Adds code for each object contained.
+            int i = 0;
             foreach (ObjObject obj in Objects)
             {
-                res += obj.ToCode(scale, faceOffset) + "\n";
+                res += obj.ToCode($"Object_{i++}", scale, faceOffset) + "\n";
                 faceOffset += obj.Vertices.Count();
             }
 

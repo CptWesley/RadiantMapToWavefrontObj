@@ -15,13 +15,12 @@ namespace RadiantMapToObj.Internal.Conversion
         /// Converts a radiant brush to an obj object.
         /// </summary>
         /// <param name="brush">The brush.</param>
-        /// <param name="name">The name of the object.</param>
         /// <returns>A newly created obj object.</returns>
-        public static ObjObject Convert(Brush brush, string name)
+        public static ObjObject Convert(Brush brush)
         {
             IEnumerable<Vector> vertices = FindIntersections(brush.ClippingPlanes);
             IEnumerable<Face> faces = CreateFaces(vertices, brush.ClippingPlanes);
-            return new ObjObject(name, vertices, faces);
+            return new ObjObject(vertices, faces);
         }
 
         /// <summary>

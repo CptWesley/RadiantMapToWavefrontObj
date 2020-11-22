@@ -11,12 +11,10 @@ namespace RadiantMapToObj.Wavefront
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjObject"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
         /// <param name="vertices">The vertices.</param>
         /// <param name="faces">The faces.</param>
-        public ObjObject(string name, IEnumerable<Vector> vertices, IEnumerable<Face> faces)
+        public ObjObject(IEnumerable<Vector> vertices, IEnumerable<Face> faces)
         {
-            Name = name;
             Vertices = vertices;
             Faces = faces;
             Cleanup();
@@ -33,19 +31,15 @@ namespace RadiantMapToObj.Wavefront
         public IEnumerable<Face> Faces { get; private set; }
 
         /// <summary>
-        /// Gets the name.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
         /// Converts to .obj file content.
         /// </summary>
+        /// <param name="name">The name of the object.</param>
         /// <param name="scale">The scale.</param>
         /// <param name="faceOffset">The face offset.</param>
         /// <returns>The .obj file content.</returns>
-        public string ToCode(double scale, int faceOffset)
+        public string ToCode(string name, double scale, int faceOffset)
         {
-            string res = "o " + Name + "\n";
+            string res = "o " + name + "\n";
 
             // Write vertices.
             foreach (Vector vertex in Vertices)
