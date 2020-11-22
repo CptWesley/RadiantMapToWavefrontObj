@@ -97,9 +97,9 @@ namespace RadiantMapToObj
             // Write faces.
             foreach (Face face in Faces)
             {
-                int v1 = Vertices.IndexOf(face.Vertex(0) !.Value) + 1 + faceOffset;
-                int v2 = Vertices.IndexOf(face.Vertex(1) !.Value) + 1 + faceOffset;
-                int v3 = Vertices.IndexOf(face.Vertex(2) !.Value) + 1 + faceOffset;
+                int v1 = Vertices.IndexOf(face.A) + 1 + faceOffset;
+                int v2 = Vertices.IndexOf(face.B) + 1 + faceOffset;
+                int v3 = Vertices.IndexOf(face.C) + 1 + faceOffset;
                 res += "f " + v1 + " " + v2 + " " + v3 + "\n";
             }
 
@@ -188,10 +188,9 @@ namespace RadiantMapToObj
             {
                 IEnumerable<Vector> verts = plane.FindVerticesInPlane(vertices);
 
-                foreach (Face face in BowyerWatson(verts))
+                foreach (Face face in BowyerWatson(verts, plane.Texture))
                 {
                     FixNormal(face, plane.Normal);
-                    face.SetTexture(plane.Texture);
                     faces.Add(face);
                 }
             }
@@ -204,8 +203,9 @@ namespace RadiantMapToObj
         /// Pseudo code taken from related wikipedia page and provided on the side in comments.
         /// </summary>
         /// <param name="vertices">The vertices.</param>
+        /// <param name="texture">The texture of the faces.</param>
         /// <returns>The faces creates by the bowyer watson algorithm.</returns>
-        private static IEnumerable<Face> BowyerWatson(IEnumerable<Vector> vertices)
+        private static IEnumerable<Face> BowyerWatson(IEnumerable<Vector> vertices, string texture)
         {
             if (vertices is null)
             {
@@ -220,8 +220,7 @@ namespace RadiantMapToObj
             List<Face> triangles = new List<Face>();
 
             // Add super triangle to list.
-            Face superTriangle = FindSuperTriangle(vertices);
-            Vector[] superVertices = superTriangle.GetVertices();
+            Face superTriangle = FindSuperTriangle(vertices, texture);
             triangles.Add(superTriangle);
 
             // for each point in pointList do
@@ -286,7 +285,7 @@ namespace RadiantMapToObj
                 foreach (Edge e in polygon)
                 {
                     // newTri := form a triangle from edge to point + add newTri to triangulation
-                    triangles.Add(new Face(e.A, e.B, v));
+                    triangles.Add(new Face(e.A, e.B, v, texture));
                 }
             }
 
@@ -295,12 +294,12 @@ namespace RadiantMapToObj
             // for each triangle in triangulation
             foreach (Face t in triangles)
             {
-                Vector[] curVertices = t.GetVertices();
+                IEnumerable<Vector> curVertices = t.Vertices;
 
                 // if triangle contains a vertex from original super-triangle
-                if (!curVertices.Contains(superVertices[0])
-                    && !curVertices.Contains(superVertices[1])
-                    && !curVertices.Contains(superVertices[2]))
+                if (!curVertices.Contains(superTriangle.A)
+                    && !curVertices.Contains(superTriangle.B)
+                    && !curVertices.Contains(superTriangle.C))
                 {
                     // remove triangle from triangulation
                     result.Add(t);
@@ -315,8 +314,9 @@ namespace RadiantMapToObj
         /// Finds the Bowyer-Watson super triangle of a set of vertices.
         /// </summary>
         /// <param name="vertices">The vertices.</param>
+        /// <param name="texture">The texture of the faces.</param>
         /// <returns>The found super triangle.</returns>
-        private static Face FindSuperTriangle(IEnumerable<Vector> vertices)
+        private static Face FindSuperTriangle(IEnumerable<Vector> vertices, string texture)
         {
             // Setup super triangle.
             double minX, maxX, minY, maxY, minZ, maxZ;
@@ -373,7 +373,7 @@ namespace RadiantMapToObj
             Vector c = a + (triBase * length);
             Vector d = a - (triBase * length);
 
-            return new Face(b, c, d);
+            return new Face(b, c, d, texture);
         }
 
         /// <summary>
@@ -398,15 +398,15 @@ namespace RadiantMapToObj
         /// </summary>
         /// <param name="face">The face.</param>
         /// <param name="normal">The normal.</param>
-        private static void FixNormal(Face face, Vector normal)
+        private static Face FixNormal(Face face, Vector normal)
         {
             // Check if the normal is correct, if not, invert the face.
             if (VerifyNormal(face, normal))
             {
-                return;
+                return face;
             }
 
-            face.Swap(0, 2);
+            return new Face(face.C, face.B, face.A, face.Texture);
         }
 
         /// <summary>
@@ -417,8 +417,8 @@ namespace RadiantMapToObj
         /// <returns>True if the normal is equal, false otherwise.</returns>
         private static bool VerifyNormal(Face face, Vector normal)
         {
-            Vector v1 = (Vector)face.Vertex(1) ! - (Vector)face.Vertex(0) !;
-            Vector v2 = (Vector)face.Vertex(2) ! - (Vector)face.Vertex(0) !;
+            Vector v1 = face.B - face.A;
+            Vector v2 = face.C - face.A;
 
             Vector faceNormal = Vector.CrossProduct(v1, v2) * -1;
             if (normal.DirectionEquals(faceNormal))
@@ -442,8 +442,8 @@ namespace RadiantMapToObj
             {
                 for (int y = 0; y < patch.Height - 1; ++y)
                 {
-                    faces.Add(new Face(patch[x, y], patch[x + 1, y], patch[x, y + 1]));
-                    faces.Add(new Face(patch[x, y + 1], patch[x + 1, y], patch[x + 1, y + 1]));
+                    faces.Add(new Face(patch[x, y], patch[x + 1, y], patch[x, y + 1], string.Empty));
+                    faces.Add(new Face(patch[x, y + 1], patch[x + 1, y], patch[x + 1, y + 1], string.Empty));
                 }
             }
 
