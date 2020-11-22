@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using RadiantMapToObj.Radiant;
 
 namespace RadiantMapToObj.Wavefront
 {
@@ -25,29 +23,6 @@ namespace RadiantMapToObj.Wavefront
         /// Gets the objects.
         /// </summary>
         public IEnumerable<ObjObject> Objects { get; private set; }
-
-        /// <summary>
-        /// Converts a RadiantMap object to a WavefrontObj object.
-        /// </summary>
-        /// <param name="map">The radiant map to convert.</param>
-        /// <returns>A wavefront object created from a given radiant map.</returns>
-        public static WavefrontObj CreateFromRadiantMap(RadiantMap map)
-        {
-            if (map is null)
-            {
-                throw new ArgumentNullException(nameof(map));
-            }
-
-            List<ObjObject> objects = new List<ObjObject>();
-
-            int i = 0;
-            foreach (IRadiantEntity entity in map.Entities)
-            {
-                objects.Add(entity.ToObjObject($"Entity_{i++}"));
-            }
-
-            return new WavefrontObj(objects);
-        }
 
         /// <summary>
         /// Removes all faces containing a texture listed in the filter from all subobjects.

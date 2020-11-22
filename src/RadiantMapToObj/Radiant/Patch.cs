@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Internal;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Radiant
@@ -121,7 +122,7 @@ namespace RadiantMapToObj.Radiant
 
         /// <inheritdoc/>
         public ObjObject ToObjObject(string name)
-            => ObjObject.CreateFromPatch(name, this);
+            => PatchConversionHelper.Convert(this, name);
 
         /// <summary>
         /// Adds a vertex to the grid in the next available slot.

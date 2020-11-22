@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using RadiantMapToObj.Internal;
+using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Radiant
 {
@@ -119,5 +121,12 @@ namespace RadiantMapToObj.Radiant
 
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Converts the map to a <see cref="WavefrontObj"/> instance.
+        /// </summary>
+        /// <returns>A new <see cref="WavefrontObj"/> instance.</returns>
+        public WavefrontObj ToObj()
+            => MapConversionHelper.Convert(this);
     }
 }

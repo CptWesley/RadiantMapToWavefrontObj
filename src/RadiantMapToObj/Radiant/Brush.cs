@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Internal;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Radiant
@@ -41,7 +42,7 @@ namespace RadiantMapToObj.Radiant
 
         /// <inheritdoc/>
         public ObjObject ToObjObject(string name)
-            => ObjObject.CreateFromBrush(name, this);
+            => BrushConversionHelper.Convert(this, name);
 
         /// <summary>
         /// Creates the clipping planes.
