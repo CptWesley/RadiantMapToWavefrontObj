@@ -106,8 +106,7 @@ namespace RadiantMapToObj.App
                 }
                 else if (type == "scale")
                 {
-                    double scale;
-                    if (double.TryParse(mode, out scale))
+                    if (double.TryParse(mode, out double scale))
                     {
                         Program.scale = scale;
                     }

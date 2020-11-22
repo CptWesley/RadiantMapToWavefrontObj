@@ -12,7 +12,7 @@ namespace RadiantMapToObj.Radiant
     /// </summary>
     public class RadiantMap
     {
-        private List<IRadiantEntity> entities = new List<IRadiantEntity>();
+        private readonly List<IRadiantEntity> entities = new List<IRadiantEntity>();
 
         /// <summary>
         /// Gets the entities.
