@@ -1,36 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace RadiantMapToWavefrontObj
 {
+    /// <summary>
+    /// Class for Brush.
+    /// </summary>
     public class Brush
     {
-        public readonly ClippingPlane[] ClippingPlanes;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Brush"/> class.
+        /// </summary>
+        /// <param name="clippingPlanes">The clipping planes.</param>
+        public Brush(IEnumerable<ClippingPlane> clippingPlanes)
+            => ClippingPlanes = clippingPlanes;
 
-        // Constructor for radiant brushes.
-        public Brush(ClippingPlane[] clippingPlanes)
-        {
-            ClippingPlanes = clippingPlanes;
-        }
+        /// <summary>
+        /// Gets the clipping planes.
+        /// </summary>
+        public IEnumerable<ClippingPlane> ClippingPlanes { get; }
 
-        // Creates a radiant brush from a piece of code.
+        /// <summary>
+        /// Creates from code.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>The new Brush object generated from code.</returns>
         public static Brush CreateFromCode(string[] code)
         {
-            ClippingPlane[] planes = CreateClippingPlanes(code);
+            if (code is null)
+            {
+                throw new ArgumentNullException(nameof(code));
+            }
 
+            IEnumerable<ClippingPlane> planes = CreateClippingPlanes(code);
             return new Brush(planes);
         }
 
-        // Creates the needed clipping planes based on code.
-        private static ClippingPlane[] CreateClippingPlanes(string[] code)
+        /// <summary>
+        /// Creates the clipping planes.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>An IEnumerable of Clipping Planes.</returns>
+        private static IEnumerable<ClippingPlane> CreateClippingPlanes(string[] code)
         {
+            // TODO: rewrite parser
             string num = @"-?\d+(\.\d+)?";
             string vertex = @"(\(\s?" + num + @"\s" + num + @"\s" + num + @"\s?\))";
-            string pattern = vertex + @"\s?"            // First vertex [1]
-                             + vertex + @"\s?"          // Second vertex [5]
-                             + vertex + @"\s"           // Third vertex [9]
-                             + @"(\w+(\/\S*)*)"         // Texture [13]
-                             + @".*";                   // Leftovers
+            string pattern = vertex + @"\s?" // First vertex [1]
+                             + vertex + @"\s?" // Second vertex [5]
+                             + vertex + @"\s" // Third vertex [9]
+                             + @"(\w+(\/\S*)*)" // Texture [13]
+                             + @".*"; // Leftovers
             Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
             List<ClippingPlane> planes = new List<ClippingPlane>();
@@ -48,7 +69,7 @@ namespace RadiantMapToWavefrontObj
                 }
             }
 
-            return planes.ToArray();
+            return planes;
         }
     }
 }
