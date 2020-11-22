@@ -603,3 +603,4 @@ fabric.properties
 
 # FodyWeavers
 *.xsd
+**/launchSettings.json
