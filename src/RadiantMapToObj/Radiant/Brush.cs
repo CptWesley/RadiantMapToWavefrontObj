@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Class for Brush.
     /// </summary>
-    public class Brush
+    public class Brush : IRadiantEntity
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Brush"/> class.
@@ -37,6 +38,10 @@ namespace RadiantMapToObj.Radiant
             IEnumerable<ClippingPlane> planes = CreateClippingPlanes(code);
             return new Brush(planes);
         }
+
+        /// <inheritdoc/>
+        public ObjObject ToObjObject(string name)
+            => ObjObject.CreateFromBrush(name, this);
 
         /// <summary>
         /// Creates the clipping planes.

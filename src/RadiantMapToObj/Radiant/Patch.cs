@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Radiant
 {
     /// <summary>
     /// Represents a radiant patch.
     /// </summary>
-    public class Patch
+    public class Patch : IRadiantEntity
     {
         private Vector[][] grid;
         private int x;
@@ -117,6 +118,10 @@ namespace RadiantMapToObj.Radiant
 
             return patch;
         }
+
+        /// <inheritdoc/>
+        public ObjObject ToObjObject(string name)
+            => ObjObject.CreateFromPatch(name, this);
 
         /// <summary>
         /// Adds a vertex to the grid in the next available slot.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace RadiantMapToObj.Radiant
 {
@@ -9,18 +10,12 @@ namespace RadiantMapToObj.Radiant
     /// </summary>
     public class RadiantMap
     {
-        private List<Brush> brushes = new List<Brush>();
-        private List<Patch> patches = new List<Patch>();
+        private List<IRadiantEntity> entities = new List<IRadiantEntity>();
 
         /// <summary>
-        /// Gets the brushes.
+        /// Gets the entities.
         /// </summary>
-        public IEnumerable<Brush> Brushes => brushes;
-
-        /// <summary>
-        /// Gets the patches.
-        /// </summary>
-        public IEnumerable<Patch> Patches => patches;
+        public IEnumerable<IRadiantEntity> Entities => entities;
 
         /// <summary>
         /// Parses a .map file to our radiant map object.
@@ -71,7 +66,7 @@ namespace RadiantMapToObj.Radiant
                             Patch? patch = Patch.CreateFromCode(brushLines!.ToArray());
                             if (patch != null)
                             {
-                                map.Add(patch);
+                                map.entities.Add(patch);
                             }
 
                             inPatch = false;
@@ -82,7 +77,7 @@ namespace RadiantMapToObj.Radiant
                             Brush? brush = Brush.CreateFromCode(brushLines!.ToArray());
                             if (brush != null)
                             {
-                                map.Add(brush);
+                                map.entities.Add(brush);
                             }
 
                             inBrush = false;
@@ -110,35 +105,19 @@ namespace RadiantMapToObj.Radiant
             return map;
         }
 
-        /// <summary>
-        /// Adds a brush to the radiant map.
-        /// </summary>
-        /// <param name="brush">The brush.</param>
-        public void Add(Brush brush)
-            => brushes.Add(brush);
-
-        /// <summary>
-        /// Adds a patch to the radiant map.
-        /// </summary>
-        /// <param name="patch">The patch.</param>
-        public void Add(Patch patch)
-            => patches.Add(patch);
-
         /// <inheritdoc/>
         public override string ToString()
         {
-            string res = string.Empty;
+            StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < brushes.Count; ++i)
+            int i = 0;
+            foreach (IRadiantEntity entity in entities)
             {
-                res += "Brush " + i + ":\n";
-                foreach (ClippingPlane f in brushes[i].ClippingPlanes)
-                {
-                    res += f + "\n";
-                }
+                sb.AppendLine($"Entity {i++}");
+                sb.AppendLine(entity.ToString());
             }
 
-            return res;
+            return sb.ToString();
         }
     }
 }

@@ -41,19 +41,12 @@ namespace RadiantMapToObj.Wavefront
             List<ObjObject> objects = new List<ObjObject>();
 
             int i = 0;
-            foreach (Brush brush in map.Brushes)
+            foreach (IRadiantEntity entity in map.Entities)
             {
-                ObjObject obj = ObjObject.CreateFromBrush("Brush_" + i++, brush);
-                objects.Add(obj);
+                objects.Add(entity.ToObjObject($"Entity_{i++}"));
             }
 
-            foreach (Patch patch in map.Patches)
-            {
-                ObjObject obj = ObjObject.CreateFromPatch("Patch_" + i++, patch);
-                objects.Add(obj);
-            }
-
-            return new WavefrontObj(objects.ToArray());
+            return new WavefrontObj(objects);
         }
 
         /// <summary>

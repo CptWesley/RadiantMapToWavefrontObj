@@ -10,7 +10,8 @@ namespace RadiantMapToObj.Radiant
         /// <summary>
         /// Converts this entity into an <see cref="ObjObject"/> instance.
         /// </summary>
+        /// <param name="name">The name of the object.</param>
         /// <returns>A new <see cref="ObjObject"/> instance.</returns>
-        ObjObject ToObjObject();
+        ObjObject ToObjObject(string name);
     }
 }
