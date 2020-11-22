@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-	<Nullable>enable</Nullable>
+    <TargetFrameworks>net5.0;net48</TargetFrameworks>
+	  <Nullable>enable</Nullable>
+    <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>../Ruleset.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin/$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
