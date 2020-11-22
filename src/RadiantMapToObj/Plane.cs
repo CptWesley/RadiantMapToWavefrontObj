@@ -16,6 +16,21 @@ namespace RadiantMapToObj
         /// <param name="v3">The third vertex.</param>
         public Plane(Vector v1, Vector v2, Vector v3)
         {
+            if (v1 is null)
+            {
+                throw new ArgumentNullException(nameof(v1));
+            }
+
+            if (v2 is null)
+            {
+                throw new ArgumentNullException(nameof(v2));
+            }
+
+            if (v3 is null)
+            {
+                throw new ArgumentNullException(nameof(v3));
+            }
+
             Vector vector1 = new Vector(v2.X - v1.X, v2.Y - v1.Y, v2.Z - v1.Z).Unit;
             Vector vector2 = new Vector(v3.X - v1.X, v3.Y - v1.Y, v3.Z - v1.Z).Unit;
 

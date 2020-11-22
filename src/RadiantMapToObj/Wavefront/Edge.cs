@@ -5,10 +5,10 @@ namespace RadiantMapToObj.Wavefront
     /// <summary>
     /// Class for Edge.
     /// </summary>
-    public struct Edge : IEquatable<Edge>
+    public class Edge : IEquatable<Edge>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Edge"/> struct.
+        /// Initializes a new instance of the <see cref="Edge"/> class.
         /// </summary>
         /// <param name="a">Vertex a of the edge.</param>
         /// <param name="b">Vertex b of the edge.</param>
@@ -57,7 +57,14 @@ namespace RadiantMapToObj.Wavefront
         /// The result of the equals operator.
         /// </returns>
         public static bool operator ==(Edge a, Edge b)
-            => a.Equals(b);
+        {
+            if (a is null)
+            {
+                return b is null;
+            }
+
+            return a.Equals(b);
+        }
 
         /// <summary>
         /// Implements the operator !=.
@@ -90,7 +97,14 @@ namespace RadiantMapToObj.Wavefront
             => A.GetHashCode() + (2 * B.GetHashCode());
 
         /// <inheritdoc/>
-        public bool Equals(Edge other)
-            => A == other.A && B == other.B;
+        public bool Equals(Edge? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return A == other.A && B == other.B;
+        }
     }
 }

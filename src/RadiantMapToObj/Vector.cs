@@ -7,10 +7,10 @@ namespace RadiantMapToObj
     /// Represents a point in 3D space.
     /// </summary>
     [SuppressMessage("Microsoft.Usage", "CA2225", Justification = "Would make code more convoluted.")]
-    public struct Vector : IEquatable<Vector>
+    public class Vector : IEquatable<Vector>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Vector"/> struct.
+        /// Initializes a new instance of the <see cref="Vector"/> class.
         /// </summary>
         /// <param name="x">The x-axis value.</param>
         /// <param name="y">The y-axis value.</param>
@@ -62,7 +62,14 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static bool operator ==(Vector a, Vector b)
-            => a.Equals(b);
+        {
+            if (a is null)
+            {
+                return b is null;
+            }
+
+            return a.Equals(b);
+        }
 
         /// <summary>
         /// Implements the operator !=.
@@ -80,7 +87,19 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator +(Vector a, Vector b)
-            => new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
 
         /// <summary>
         /// Implements the operator -.
@@ -89,7 +108,19 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator -(Vector a, Vector b)
-            => new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
 
         /// <summary>
         /// Implements the operator *.
@@ -98,7 +129,19 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator *(Vector a, Vector b)
-            => new Vector(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return new Vector(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        }
 
         /// <summary>
         /// Implements the operator *.
@@ -107,7 +150,14 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator *(Vector a, double b)
-            => new Vector(a.X * b, a.Y * b, a.Z * b);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            return new Vector(a.X * b, a.Y * b, a.Z * b);
+        }
 
         /// <summary>
         /// Implements the operator *.
@@ -116,7 +166,14 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator *(double a, Vector b)
-            => new Vector(a * b.X, a * b.Y, a * b.Z);
+        {
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return new Vector(a * b.X, a * b.Y, a * b.Z);
+        }
 
         /// <summary>
         /// Implements the operator *.
@@ -125,7 +182,19 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator /(Vector a, Vector b)
-            => new Vector(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return new Vector(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+        }
 
         /// <summary>
         /// Implements the operator /.
@@ -134,7 +203,14 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The result of the operator.</returns>
         public static Vector operator /(Vector a, double b)
-            => new Vector(a.X / b, a.Y / b, a.Z / b);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            return new Vector(a.X / b, a.Y / b, a.Z / b);
+        }
 
         /// <summary>
         /// Calculates the cross product between two vectors.
@@ -144,6 +220,16 @@ namespace RadiantMapToObj
         /// <returns>The cross product of the two vectors.</returns>
         public static Vector CrossProduct(Vector a, Vector b)
         {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
             double x = (a.Y * b.Z) - (a.Z * b.Y);
             double y = (a.Z * b.X) - (a.X * b.Z);
             double z = (a.X * b.Y) - (a.Y * b.X);
@@ -157,7 +243,19 @@ namespace RadiantMapToObj
         /// <param name="b">The second vector.</param>
         /// <returns>The dot product of the two vectors.</returns>
         public static double DotProduct(Vector a, Vector b)
-            => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+        }
 
         /// <summary>
         /// Get the distance between this point and another given point.
@@ -166,6 +264,11 @@ namespace RadiantMapToObj
         /// <returns>The distance between the two points.</returns>
         public double Distance(Vector other)
         {
+            if (other is null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
             double dX = X - other.X;
             double dY = Y - other.Y;
             double dZ = Z - other.Z;
@@ -177,8 +280,15 @@ namespace RadiantMapToObj
             => $"<{X}, {Y}, {Z}>";
 
         /// <inheritdoc/>
-        public bool Equals(Vector other)
-            => ApproximatelyEquals(X, other.X) && ApproximatelyEquals(Y, other.Y) && ApproximatelyEquals(Z, other.Z);
+        public bool Equals(Vector? other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return ApproximatelyEquals(X, other.X) && ApproximatelyEquals(Y, other.Y) && ApproximatelyEquals(Z, other.Z);
+        }
 
         /// <inheritdoc/>
         public override bool Equals(object obj)
@@ -219,7 +329,14 @@ namespace RadiantMapToObj
         /// <param name="other">The other vector.</param>
         /// <returns>True if direction is equal, false otherwise.</returns>
         public bool DirectionEquals(Vector other)
-            => Unit.Equals(other.Unit);
+        {
+            if (other is null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            return Unit.Equals(other.Unit);
+        }
 
         /// <summary>
         /// Checks if two doubles are roughly equal.

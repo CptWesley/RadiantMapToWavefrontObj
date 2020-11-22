@@ -51,7 +51,7 @@ namespace RadiantMapToObj.Internal
                             {
                                 if (planeL != planeI && planeL != planeJ && planeL != planeK)
                                 {
-                                    double dot = Vector.DotProduct(intersection!.Value, planeL.Normal) - planeL.D;
+                                    double dot = Vector.DotProduct(intersection!, planeL.Normal) - planeL.D;
                                     if (dot > 0)
                                     {
                                         rightSide = false;
@@ -60,9 +60,9 @@ namespace RadiantMapToObj.Internal
                                 }
                             }
 
-                            if (rightSide && !intersections.Contains(intersection!.Value))
+                            if (rightSide && !intersections.Contains(intersection!))
                             {
-                                intersections.Add(intersection.Value);
+                                intersections.Add(intersection!);
                             }
                         }
                     }

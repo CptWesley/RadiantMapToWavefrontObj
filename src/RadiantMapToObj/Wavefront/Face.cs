@@ -6,10 +6,10 @@ namespace RadiantMapToObj.Wavefront
     /// <summary>
     /// Class for Faces.
     /// </summary>
-    public struct Face : IEquatable<Face>
+    public class Face : IEquatable<Face>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Face"/> struct.
+        /// Initializes a new instance of the <see cref="Face"/> class.
         /// </summary>
         /// <param name="a">The first vertex.</param>
         /// <param name="b">The second vertex.</param>
@@ -53,7 +53,14 @@ namespace RadiantMapToObj.Wavefront
         /// The result of the double equals operator.
         /// </returns>
         public static bool operator ==(Face a, Face b)
-            => a.Equals(b);
+        {
+            if (a is null)
+            {
+                return b is null;
+            }
+
+            return a.Equals(b);
+        }
 
         /// <summary>
         /// Implements the operator !=.
@@ -114,7 +121,14 @@ namespace RadiantMapToObj.Wavefront
 
         /// <inheritdoc/>
         public bool Equals(Face other)
-            => A == other.A && B == other.B && C == other.C;
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return A == other.A && B == other.B && C == other.C;
+        }
 
         /// <inheritdoc/>
         public override bool Equals(object obj)
