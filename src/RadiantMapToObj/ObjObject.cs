@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RadiantMapToWavefrontObj
 {
@@ -249,7 +250,7 @@ namespace RadiantMapToWavefrontObj
                         {
                             if (triangle == otherTriangle)
                                 continue;
-                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.GetInverse()))
+                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.Inverse))
                             {
                                 shared = true;
                                 break;

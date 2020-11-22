@@ -5,15 +5,22 @@ using System.Text.RegularExpressions;
 
 namespace RadiantMapToWavefrontObj
 {
+    /// <summary>
+    /// Entry class Program.
+    /// </summary>
     internal class Program
     {
-        private static double _scale = 0.01;
-        private static bool _autoclose = false;
-        private static string[] _textureFilter = new string[0];
+        private static double scale = 0.01;
+        private static bool autoclose;
+        private static string[] textureFilter = Array.Empty<string>();
 
-        static void Main(string[] args)
+        /// <summary>
+        /// Defines the entry point of the application.
+        /// </summary>
+        /// <param name="args">The arguments.</param>
+        public static void Main(string[] args)
         {
-            Version version = Assembly.GetExecutingAssembly().GetName().Version;
+            Version version = Assembly.GetExecutingAssembly().GetName().Version!;
             Console.WriteLine("RadiantMapToWavefrontObj version " + version.Major + '.' + version.Minor + '.' + version.Build);
 
             bool success = false;
@@ -27,20 +34,29 @@ namespace RadiantMapToWavefrontObj
                     success = true;
                 }
                 else
+                {
                     HandleArgument(arg);
+                }
             }
 
             if (!success)
+            {
                 Console.WriteLine("Invalid file.");
+            }
 
             // Wait for console input before closing.
             Console.WriteLine("\nPress any key to close this window...");
 
-            if (!_autoclose)
+            if (!autoclose)
+            {
                 Console.ReadKey();
+            }
         }
 
-        // Convert .map file to .obj file.
+        /// <summary>
+        /// Converts the file.
+        /// </summary>
+        /// <param name="path">The path.</param>
         private static void ConvertFile(string path)
         {
             Console.WriteLine("Parsing file: " + path + "...");
@@ -50,16 +66,21 @@ namespace RadiantMapToWavefrontObj
             RadiantMap map = RadiantMap.Parse(path);
             WavefrontObj obj = WavefrontObj.CreateFromRadiantMap(map);
 
-            if (_textureFilter.Length > 0)
-                obj.FilterTextures(_textureFilter);
+            if (textureFilter.Length > 0)
+            {
+                obj.FilterTextures(textureFilter);
+            }
 
-            obj.SaveFile(Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".obj", _scale);
+            obj.SaveFile(Path.Combine(Path.GetDirectoryName(path) !, Path.GetFileNameWithoutExtension(path)) + ".obj", scale);
 
             DateTime endTime = DateTime.Now;
             Console.WriteLine("Finished in: " + (endTime - startTime).Milliseconds + "ms.");
         }
 
-        // Handle a settings argument.
+        /// <summary>
+        /// Handles the argument.
+        /// </summary>
+        /// <param name="arg">The argument.</param>
         private static void HandleArgument(string arg)
         {
             string pattern = @"-(\w+)=(\S+)";
@@ -73,20 +94,28 @@ namespace RadiantMapToWavefrontObj
                 if (type == "autoclose")
                 {
                     if (mode == "false" || mode == "0")
-                        _autoclose = false;
+                    {
+                        autoclose = false;
+                    }
                     else if (mode == "true" || mode == "1")
-                        _autoclose = true;
+                    {
+                        autoclose = true;
+                    }
                 }
                 else if (type == "scale")
                 {
                     double scale;
-                    if (Double.TryParse(mode, out scale))
-                        _scale = scale;
+                    if (double.TryParse(mode, out scale))
+                    {
+                        Program.scale = scale;
+                    }
                 }
                 else if (type == "filter")
                 {
                     if (File.Exists(mode))
-                        _textureFilter = File.ReadAllLines(mode);
+                    {
+                        textureFilter = File.ReadAllLines(mode);
+                    }
                 }
             }
         }

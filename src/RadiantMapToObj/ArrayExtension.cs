@@ -1,23 +1,20 @@
-﻿
+﻿using System;
+
 namespace RadiantMapToWavefrontObj
 {
+    /// <summary>
+    /// Extension class for <see cref="Array"/>.
+    /// </summary>
     public static class ArrayExtension
     {
-        // Adds an IndexOf method to arrays.
-        public static int IndexOf<T>(this T[] arr, T other)
-        {
-            for (int i = 0; i < arr.Length; ++i)
-            {
-                if (arr[i].Equals(other))
-                    return i;
-            }
-            return -1;
-        }
-
-        // Adds a Contains method to arrays.
-        public static bool Contains<T>(this T[] arr, T other)
-        {
-            return IndexOf(arr, other) != -1;
-        }
+        /// <summary>
+        /// Get index of element.
+        /// </summary>
+        /// <typeparam name="T">Type of element to be found.</typeparam>
+        /// <param name="arr">The arr.</param>
+        /// <param name="element">The other.</param>
+        /// <returns>Index of element.</returns>
+        public static int IndexOf<T>(this T[] arr, T element)
+            => Array.IndexOf(arr, element);
     }
 }

@@ -1,78 +1,117 @@
-﻿
-using System;
+﻿using System;
 
 namespace RadiantMapToWavefrontObj
 {
-    public struct Edge
+    /// <summary>
+    /// Class for Edge.
+    /// </summary>
+    public struct Edge : IEquatable<Edge>
     {
-        public Vertex A { get; set; }
-        public Vertex B { get; set; }
-
-        // Constructor for an edge between two vertices.
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Edge"/> struct.
+        /// </summary>
+        /// <param name="a">Vertex a of the edge.</param>
+        /// <param name="b">Vertex b of the edge.</param>
         public Edge(Vertex a, Vertex b)
         {
             A = a;
             B = b;
         }
 
-        // Returns the vector given by this edge.
-        public Vector GetVector()
-        {
-            return (Vector) B - (Vector) A;
-        }
+        /// <summary>
+        /// Gets one of the vertices of the edge.
+        /// </summary>
+        public Vertex A { get; }
 
-        // Returns the length of this edge.
-        public double Length()
-        {
-            return GetVector().Length();
-        }
+        /// <summary>
+        /// Gets one of the vertices of the edge.
+        /// </summary>
+        public Vertex B { get; }
 
-        // Returns the inverse edge of this edge.
-        public Edge GetInverse()
-        {
-            return new Edge(B, A);
-        }
+        /// <summary>
+        /// Gets the vector.
+        /// </summary>
+        /// <returns>the Vector.</returns>
+        public Vector Vector
+            => (Vector)B - (Vector)A;
 
-        // Returns a stringified version of this object.
-        public override string ToString()
-        {
-            return "<" + A + ", " + B + ">";
-        }
+        /// <summary>
+        /// Gets the length.
+        /// </summary>
+        public double Length
+            => Vector.Length();
 
-        // Checks if two edges are equal.
-        public override bool Equals(object obj)
-        {
-            if (obj is Edge)
-            {
-                Edge that = (Edge)obj;
-                if (A == that.A && B == that.B)
-                    return true;
-            }
-            return false;
-        }
+        /// <summary>
+        /// Gets the inverse.
+        /// </summary>
+        /// <returns>Inverse of Edge.</returns>
+        public Edge Inverse
+            => new Edge(B, A);
 
-        // Returns a hascode for the object.
-        public override int GetHashCode()
-        {
-            return A.GetHashCode() + 2 * B.GetHashCode();
-        }
-
-        // Override == operator.
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="a">One of the edges.</param>
+        /// <param name="b">Another edge.</param>
+        /// <returns>
+        /// The result of the equals operator.
+        /// </returns>
         public static bool operator ==(Edge a, Edge b)
-        {
-            if (ReferenceEquals(a, null))
-            {
-                if (ReferenceEquals(b, null))
-                    return true;
-                return false;
-            }
-            return a.Equals(b);
-        }
+            => a.Equals(b);
 
-        // Override != operator.
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="a">One of the edges.</param>
+        /// <param name="b">The other of the edges.</param>
+        /// <returns>
+        /// The result of the non-equality operator.
+        /// </returns>
         public static bool operator !=(Edge a, Edge b)
         {
             return !(a == b);
         }
+
+        /// <summary>
+        /// Converts to string.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+            => $"<{A}, {B}>";
+
+        /// <summary>
+        /// Determines whether the specified <see cref="object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is Edge that)
+            {
+                Equals(that);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return A.GetHashCode() + (2 * B.GetHashCode());
+        }
+
+        /// <inheritdoc/>
+        public bool Equals(Edge other)
+            => A == other.A && B == other.B;
+
     }
 }
