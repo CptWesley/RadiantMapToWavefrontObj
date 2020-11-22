@@ -6,6 +6,7 @@
     <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>../Ruleset.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin/$(AssemblyName).xml</DocumentationFile>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   
   <ItemGroup>
