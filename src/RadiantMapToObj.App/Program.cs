@@ -76,7 +76,7 @@ namespace RadiantMapToObj.App
             obj.SaveFile(Path.Combine(Path.GetDirectoryName(path) !, Path.GetFileNameWithoutExtension(path)) + ".obj", scale);
 
             DateTime endTime = DateTime.Now;
-            Console.WriteLine("Finished in: " + (endTime - startTime).Milliseconds + "ms.");
+            Console.WriteLine("Finished in: " + (endTime - startTime).TotalMilliseconds + "ms.");
         }
 
         /// <summary>
