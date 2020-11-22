@@ -123,6 +123,14 @@ namespace RadiantMapToObj
         }
 
         /// <summary>
+        /// Implements the operator -.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator -(Vector a)
+            => -1 * a;
+
+        /// <summary>
         /// Implements the operator *.
         /// </summary>
         /// <param name="a">The first vector.</param>

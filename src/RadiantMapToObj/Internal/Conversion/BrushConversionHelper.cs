@@ -317,7 +317,7 @@ namespace RadiantMapToObj.Internal.Conversion
             Vector v1 = face.B - face.A;
             Vector v2 = face.C - face.A;
 
-            Vector faceNormal = Vector.CrossProduct(v1, v2) * -1;
+            Vector faceNormal = -Vector.CrossProduct(v1, v2);
             if (normal.DirectionEquals(faceNormal))
             {
                 return true;
