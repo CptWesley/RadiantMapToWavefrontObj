@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
+using System.Linq;
 using RadiantMapToObj.Radiant;
+using Warpstone;
+using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;
+using static Warpstone.Parsers.BasicParsers;
 
 namespace RadiantMapToObj.Internal.Parsing
 {
@@ -10,86 +12,39 @@ namespace RadiantMapToObj.Internal.Parsing
     /// </summary>
     internal static class MapParsingHelper
     {
+        private static readonly IParser<string> StringContent
+            = Or(Regex("[^\"\\n\\r]"), String("\\\""));
+
+        private static readonly IParser<string> String
+            = Char('"').Then(Many(StringContent)).ThenSkip(Char('"'))
+            .WithName("string")
+            .Transform(x => string.Join(string.Empty, x));
+
+        private static readonly IParser<(string, string)> Field
+            = String.ThenSkip(OptionalLayout).ThenAdd(String);
+
+        private static readonly IParser<IRadiantEntity> Entity
+            = Or<IRadiantEntity>(PatchParsingHelper.Patch, BrushParsingHelper.Brush);
+
+        private static readonly IParser<IEnumerable<IRadiantEntity>> EntityContent
+            = String("{")
+            .ThenSkip(OptionalLayout)
+            .Then(Many(Field, OptionalLayout))
+            .ThenSkip(OptionalLayout)
+            .Then(Many(Entity, OptionalLayout))
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String("}"));
+
+        private static readonly IParser<IEnumerable<IRadiantEntity>> Entities = Many(EntityContent, OptionalLayout).Transform(x => x.SelectMany(x => x));
+
+        private static readonly IParser<RadiantMap> Map = OptionalLayout.Then(Entities).ThenSkip(OptionalLayout).ThenEnd().Transform(x => new RadiantMap(x));
+
         /// <summary>
         /// Parses a .map file to our radiant map object.
         /// </summary>
-        /// <param name="path">The path.</param>
+        /// <param name="input">The content of the .map file.</param>
         /// <returns>The parsed radiant map.</returns>
-        public static RadiantMap Parse(string path)
-        {
-            string[] content = File.ReadAllLines(path);
-            bool started = false;
-            bool inBrush = false;
-            bool inPatch = false;
-            List<string>? brushLines = null;
-
-            List<IRadiantEntity> entities = new List<IRadiantEntity>();
-
-            for (int i = 0; i < content.Length; ++i)
-            {
-                // Skip empty lines.
-                if (content[i].Length < 1)
-                {
-                    continue;
-                }
-
-                if (started)
-                {
-                    if (content[i].Contains("{"))
-                    {
-                        if (!inBrush)
-                        {
-                            inBrush = true;
-                            brushLines = new List<string>();
-                            brushLines.Add(content[i]);
-                        }
-                        else if (!inPatch)
-                        {
-                            inPatch = true;
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Not a proper .map file.");
-                        }
-                    }
-                    else if (content[i].Contains("}"))
-                    {
-                        if (inPatch)
-                        {
-                            Patch patch = PatchParsingHelper.Parse(brushLines!.ToArray());
-                            entities.Add(patch);
-
-                            inPatch = false;
-                            brushLines = new List<string>();
-                        }
-                        else if (inBrush)
-                        {
-                            Brush brush = BrushParsingHelper.Parse(brushLines!.ToArray());
-                            entities.Add(brush);
-
-                            inBrush = false;
-                            brushLines = new List<string>();
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else if (inBrush)
-                    {
-                        brushLines!.Add(content[i]);
-                    }
-                }
-                else
-                {
-                    if (content[i][0] == '{')
-                    {
-                        started = true;
-                    }
-                }
-            }
-
-            return new RadiantMap(entities);
-        }
+        public static RadiantMap Parse(string input)
+            => Map.Parse(input);
     }
 }

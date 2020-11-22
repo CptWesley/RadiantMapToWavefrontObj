@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Internal.Parsing;
@@ -24,12 +25,20 @@ namespace RadiantMapToObj.Radiant
         public IEnumerable<IRadiantEntity> Entities { get; }
 
         /// <summary>
+        /// Parses .map file formatted content to a map.
+        /// </summary>
+        /// <param name="content">The .map content.</param>
+        /// <returns>The parsed radiant map.</returns>
+        public static RadiantMap Parse(string content)
+            => MapParsingHelper.Parse(content);
+
+        /// <summary>
         /// Parses a .map file to our radiant map object.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The parsed radiant map.</returns>
-        public static RadiantMap Parse(string path)
-            => MapParsingHelper.Parse(path);
+        public static RadiantMap ParseFile(string path)
+            => Parse(File.ReadAllText(path));
 
         /// <inheritdoc/>
         public override string ToString()

@@ -65,7 +65,7 @@ namespace RadiantMapToObj.App
 
             DateTime startTime = DateTime.Now;
 
-            RadiantMap map = RadiantMap.Parse(path);
+            RadiantMap map = RadiantMap.ParseFile(path);
             WavefrontObj obj = map.ToObj();
 
             if (textureFilter.Length > 0)
