@@ -1,30 +1,79 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
+    /// <summary>
+    /// Represents a wavefront obj file.
+    /// </summary>
     public class WavefrontObj
     {
-        public ObjObject[] Objects { get; private set; }
-
-        // Constructor for an entire wavefront .obj file object.
-        public WavefrontObj(ObjObject[] objects)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WavefrontObj"/> class.
+        /// </summary>
+        /// <param name="objects">The objects.</param>
+        public WavefrontObj(IEnumerable<ObjObject> objects)
         {
             Objects = objects;
             Cleanup();
         }
 
-        // Removes all faces containing a texture listed in the filter from all subobjects.
+        /// <summary>
+        /// Gets the objects.
+        /// </summary>
+        public IEnumerable<ObjObject> Objects { get; private set; }
+
+        /// <summary>
+        /// Converts a RadiantMap object to a WavefrontObj object.
+        /// </summary>
+        /// <param name="map">The radiant map to convert.</param>
+        /// <returns>A wavefront object created from a given radiant map.</returns>
+        public static WavefrontObj CreateFromRadiantMap(RadiantMap map)
+        {
+            if (map is null)
+            {
+                throw new ArgumentNullException(nameof(map));
+            }
+
+            List<ObjObject> objects = new List<ObjObject>();
+
+            int i = 0;
+            foreach (Brush brush in map.Brushes)
+            {
+                ObjObject obj = ObjObject.CreateFromBrush("Brush_" + i++, brush);
+                objects.Add(obj);
+            }
+
+            foreach (Patch patch in map.Patches)
+            {
+                ObjObject obj = ObjObject.CreateFromPatch("Patch_" + i++, patch);
+                objects.Add(obj);
+            }
+
+            return new WavefrontObj(objects.ToArray());
+        }
+
+        /// <summary>
+        /// Removes all faces containing a texture listed in the filter from all subobjects.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         public void FilterTextures(string[] filter)
         {
             foreach (ObjObject obj in Objects)
             {
                 obj.FilterTextures(filter);
             }
+
             Cleanup();
         }
 
-        // Returns .obj formatted text of this object.
+        /// <summary>
+        /// Converts the object to .obj file content.
+        /// </summary>
+        /// <param name="scale">The scale.</param>
+        /// <returns>The object represented in .obj file content format.</returns>
         public string ToCode(double scale)
         {
             string res = "# Exported using Wesley Baartman's RadiantMapToWavefrontObj software.\n\n";
@@ -35,53 +84,24 @@ namespace RadiantMapToWavefrontObj
             foreach (ObjObject obj in Objects)
             {
                 res += obj.ToCode(scale, faceOffset) + "\n";
-                faceOffset += obj.Vertices.Length;
+                faceOffset += obj.Vertices.Count();
             }
 
             return res;
         }
 
-        // Saves this object to an .obj file.
+        /// <summary>
+        /// Saves this object to an .obj file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="scale">The scale.</param>
         public void SaveFile(string path, double scale)
-        {
-            File.WriteAllText(path, ToCode(scale));
-        }
+            => File.WriteAllText(path, ToCode(scale));
 
-        // Removes objects that lack faces or vertices.
+        /// <summary>
+        /// Removes objects that lack faces or vertices.
+        /// </summary>
         private void Cleanup()
-        {
-            List<ObjObject> newObjects = new List<ObjObject>();
-
-            foreach (ObjObject obj in Objects)
-            {
-                if (obj.Faces != null && obj.Faces.Length > 0 && obj.Vertices.Length > 0)
-                    newObjects.Add(obj);
-            }
-
-            Objects = newObjects.ToArray();
-
-        }
-
-        // Converts a RadiantMap object to a WavefrontObj object.
-        public static WavefrontObj CreateFromRadiantMap(RadiantMap map)
-        {
-            List<ObjObject> objects = new List<ObjObject>();
-
-            for (int i = 0; i < map.Brushes.Length; ++i)
-            {
-                Brush brush = map.Brushes[i];
-                ObjObject obj = ObjObject.CreateFromBrush("Brush_" + i, brush);
-                objects.Add(obj);
-            }
-
-            for (int i = 0; i < map.Patches.Length; ++i)
-            {
-                Patch patch = map.Patches[i];
-                ObjObject obj = ObjObject.CreateFromPatch("Patch_" + i, patch);
-                objects.Add(obj);
-            }
-
-            return new WavefrontObj(objects.ToArray());
-        }
+            => Objects = Objects.Where(obj => obj.Faces != null && obj.Faces.Any() && obj.Vertices.Any());
     }
 }

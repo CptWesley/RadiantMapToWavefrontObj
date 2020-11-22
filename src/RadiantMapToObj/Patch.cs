@@ -1,73 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
+    /// <summary>
+    /// Represents a radiant patch.
+    /// </summary>
     public class Patch
     {
-        public Vertex[][] Grid { get; private set; }
+        private Vector[][] grid;
+        private int x;
+        private int y;
 
-        private int _x;
-        private int _y;
-
-        public Vertex[] this[int index]
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Patch"/> class.
+        /// </summary>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        private Patch(int width, int height)
         {
-            get => Grid[index];
-            set => Grid[index] = value;
-        }
+            grid = new Vector[width][];
 
-        // Constructor for a patch.
-        public Patch(int width, int height)
-        {
-            Grid = new Vertex[width][];
-
-            for (int i = 0; i < Grid.Length; ++i)
+            for (int i = 0; i < grid.Length; ++i)
             {
-                Grid[i] = new Vertex[height];
-                for (int j = 0; j < Grid[i].Length; ++j)
-                    Grid[i][j] = null;
+                grid[i] = new Vector[height];
             }
         }
 
-        // Collect all vertices and return them.
-        public Vertex[] GetVertices()
-        {
-            List<Vertex> vertices = new List<Vertex>(); 
+        /// <summary>
+        /// Gets the width.
+        /// </summary>
+        public int Width => grid[0].Length;
 
-            foreach (Vertex[] row in Grid)
+        /// <summary>
+        /// Gets the height.
+        /// </summary>
+        public int Height => grid.Length;
+
+        /// <summary>
+        /// Gets all vertices.
+        /// </summary>
+        public IEnumerable<Vector> Vertices => grid.SelectMany(x => x);
+
+        /// <summary>
+        /// Gets the <see cref="Vector"/> with at the specified x and y coordinates.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <returns>The vertex at the given coordinate.</returns>
+        public Vector this[int x, int y] => grid[x][y];
+
+        /// <summary>
+        /// Creates a radiant patch from a piece of code.
+        /// </summary>
+        /// <param name="code">The code.</param>
+        /// <returns>The created patch.</returns>
+        public static Patch? CreateFromCode(string[] code)
+        {
+            if (code is null)
             {
-                foreach (Vertex vert in row)
-                    vertices.Add(vert);
+                throw new ArgumentNullException(nameof(code));
             }
 
-            return vertices.ToArray();
-        }
-
-        // Adds a vertex to the grid in the next available slot.
-        public void Add(Vertex vertex)
-        {
-            Grid[_y][_x] = vertex;
-
-            if (_x < Grid[0].Length-1)
-                _x++;
-            else
-            {
-                _x = 0;
-                if (_y < Grid.Length - 1)
-                    _y++;
-                else
-                    _y = 0;
-            }
-        }
-
-        // Creates a radiant patch from a piece of code.
-        public static Patch CreateFromCode(string[] code)
-        {
-            string sizePattern = @"(\s+)?\(\s?(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)(\s(\d+)\s(\d+))?\s?\)";    //width,height [2,3]
+            string sizePattern = @"(\s+)?\(\s?(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+)(\s(\d+)\s(\d+))?\s?\)"; // width,height [2,3]
             Regex sizeRegex = new Regex(sizePattern, RegexOptions.IgnoreCase);
 
-            Patch patch = null;
+            Patch? patch = null;
 
             int line = 0;
 
@@ -77,15 +78,15 @@ namespace RadiantMapToWavefrontObj
                 ++line;
                 if (m.Success)
                 {
-                    patch = new Patch(int.Parse(m.Groups[2].ToString()), int.Parse(m.Groups[3].ToString()));
+                    patch = new Patch(int.Parse(m.Groups[2].ToString(), CultureInfo.InvariantCulture), int.Parse(m.Groups[3].ToString(), CultureInfo.InvariantCulture));
                     break;
                 }
             }
 
             string num = @"-?\d+(\.\d+)?";
-            string vertex = @"(\(\s?(" + num + @")\s(" + num + @")\s(" + num + @")\s("      //x,y,z [2,4,6]
-                + num + @")\s(" + num + @")\s("                                             //patchDef2
-                + "(" + num + @")\s(" + num + @")\s(" + num + @")\s(" + num + @")\s(" + num + @"))?\s?\))"; //patchDef3
+            string vertex = @"(\(\s?(" + num + @")\s(" + num + @")\s(" + num + @")\s(" // x,y,z [2,4,6]
+                + num + @")\s(" + num + @")\s(" // patchDef2
+                + "(" + num + @")\s(" + num + @")\s(" + num + @")\s(" + num + @")\s(" + num + @"))?\s?\))"; // patchDef3
 
             string pattern = vertex;
 
@@ -99,17 +100,46 @@ namespace RadiantMapToWavefrontObj
                 {
                     for (int i = 0; i < m.Count; ++i)
                     {
-                        Vertex v = new Vertex(-Double.Parse(m[i].Groups[2].ToString(), System.Globalization.CultureInfo.InvariantCulture),
-                            -Double.Parse(m[i].Groups[4].ToString(), System.Globalization.CultureInfo.InvariantCulture),
-                            -Double.Parse(m[i].Groups[6].ToString(), System.Globalization.CultureInfo.InvariantCulture));
+                        Vector v = new Vector(
+                            -double.Parse(m[i].Groups[2].ToString(), CultureInfo.InvariantCulture),
+                            -double.Parse(m[i].Groups[4].ToString(), CultureInfo.InvariantCulture),
+                            -double.Parse(m[i].Groups[6].ToString(), CultureInfo.InvariantCulture));
 
                         if (patch != null)
+                        {
                             patch.Add(v);
+                        }
                     }
                 }
             }
 
             return patch;
+        }
+
+        /// <summary>
+        /// Adds a vertex to the grid in the next available slot.
+        /// </summary>
+        /// <param name="vertex">The vertex.</param>
+        private void Add(Vector vertex)
+        {
+            grid[y][x] = vertex;
+
+            if (x < grid[0].Length - 1)
+            {
+                x++;
+            }
+            else
+            {
+                x = 0;
+                if (y < grid.Length - 1)
+                {
+                    y++;
+                }
+                else
+                {
+                    y = 0;
+                }
+            }
         }
     }
 }

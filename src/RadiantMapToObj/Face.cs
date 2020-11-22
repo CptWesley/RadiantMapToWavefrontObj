@@ -1,32 +1,30 @@
 ﻿using System;
 using System.Linq;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
     /// <summary>
     /// Class for Faces.
     /// </summary>
-    public class Face
+    public class Face : IEquatable<Face>
     {
         // TODO: refactor vertices to 3 variables.
-        private Vertex[] vertices;
+        private Vector[] vertices;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Face"/> class.
         /// </summary>
         public Face()
+            : this(new Vector[3])
         {
-            vertices = new Vertex[3];
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Face"/> class.
         /// </summary>
         /// <param name="vertices">The vertices.</param>
-        public Face(Vertex[] vertices)
-        {
-            this.vertices = vertices;
-        }
+        public Face(Vector[] vertices)
+            => this.vertices = vertices;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Face"/> class.
@@ -34,9 +32,9 @@ namespace RadiantMapToWavefrontObj
         /// <param name="a">One of the vertices.</param>
         /// <param name="b">Another of the vertices.</param>
         /// <param name="c">The last one of the vertices.</param>
-        public Face(Vertex a, Vertex b, Vertex c)
+        public Face(Vector a, Vector b, Vector c)
         {
-            vertices = new Vertex[3];
+            vertices = new Vector[3];
             vertices[0] = a;
             vertices[1] = b;
             vertices[2] = c;
@@ -55,7 +53,7 @@ namespace RadiantMapToWavefrontObj
         /// </value>
         /// <param name="index">The index.</param>
         /// <returns>Vertices in face.</returns>
-        public Vertex this[int index]
+        public Vector this[int index]
         {
             get => vertices[index];
             set => vertices[index] = value;
@@ -110,7 +108,7 @@ namespace RadiantMapToWavefrontObj
         /// Gets the vertices.
         /// </summary>
         /// <returns>Returns the list of vertices.</returns>
-        public Vertex[] GetVertices()
+        public Vector[] GetVertices()
         {
             return vertices;
         }
@@ -119,7 +117,7 @@ namespace RadiantMapToWavefrontObj
         /// Sets the vertices.
         /// </summary>
         /// <param name="vertices">The vertices.</param>
-        public void SetVertices(Vertex[] vertices)
+        public void SetVertices(Vector[] vertices)
         {
             if (vertices is null)
             {
@@ -137,13 +135,8 @@ namespace RadiantMapToWavefrontObj
         /// <param name="index">The index of the original vertex.</param>
         /// <param name="vertex">The new vertex.</param>
         /// <exception cref="ArgumentNullException">vertices.</exception>
-        public void SetVertex(int index, Vertex vertex)
+        public void SetVertex(int index, Vector vertex)
         {
-            if (vertex is null)
-            {
-                throw new ArgumentNullException(nameof(vertex));
-            }
-
             if (index < vertices.Length)
             {
                 vertices[index] = vertex;
@@ -155,7 +148,7 @@ namespace RadiantMapToWavefrontObj
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>The vertex with a certain intex.</returns>
-        public Vertex? Vertex(int index)
+        public Vector? Vertex(int index)
         {
             if (index < 0 || index > 2)
             {
@@ -177,7 +170,7 @@ namespace RadiantMapToWavefrontObj
                 return;
             }
 
-            Vertex temp = vertices[first];
+            Vector temp = vertices[first];
             vertices[first] = vertices[second];
             vertices[second] = temp;
         }
@@ -188,8 +181,8 @@ namespace RadiantMapToWavefrontObj
         /// <returns>Vector normal for the face.</returns>
         public Vector GetNormal()
         {
-            Vector v1 = (Vector)vertices[1] - (Vector)vertices[0];
-            Vector v2 = (Vector)vertices[2] - (Vector)vertices[0];
+            Vector v1 = vertices[1] - vertices[0];
+            Vector v2 = vertices[2] - vertices[0];
 
             return Vector.CrossProduct(v1, v2) * -1;
         }
@@ -198,19 +191,19 @@ namespace RadiantMapToWavefrontObj
         /// Gets the circumsphere of this triangle.
         /// </summary>
         /// <returns>Circumsphere of the triangle.</returns>
-        public Tuple<Vertex, double> GetCircumsphere()
+        public Tuple<Vector, double> GetCircumsphere()
         {
-            Vector v0 = (Vector)vertices[1] - (Vector)vertices[0];
-            Vector v1 = (Vector)vertices[2] - (Vector)vertices[0];
+            Vector v0 = vertices[1] - vertices[0];
+            Vector v1 = vertices[2] - vertices[0];
 
             Vector vx = Vector.CrossProduct(v0, v1);
 
-            Vector centerVector = ((Vector.CrossProduct(vx, v0) * v1.SquareLength()) + (Vector.CrossProduct(v1, vx) * v0.SquareLength())) / (2 * vx.SquareLength());
-            Vertex center = vertices[0] + centerVector;
+            Vector centerVector = ((Vector.CrossProduct(vx, v0) * v1.SquareLength) + (Vector.CrossProduct(v1, vx) * v0.SquareLength)) / (2 * vx.SquareLength);
+            Vector center = vertices[0] + centerVector;
 
-            double radius = centerVector.Length();
+            double radius = centerVector.Length;
 
-            return new Tuple<Vertex, double>(center, radius);
+            return new Tuple<Vector, double>(center, radius);
         }
 
         /// <summary>
@@ -233,52 +226,37 @@ namespace RadiantMapToWavefrontObj
         /// <returns>
         ///   <c>true</c> if [contains] [the specified vertex]; otherwise, <c>false</c>.
         /// </returns>
-        public bool Contains(Vertex vertex)
-        {
-            return vertices.Contains(vertex);
-        }
+        public bool Contains(Vector vertex)
+            => vertices.Contains(vertex);
 
-        /// <summary>
-        /// Converts to string.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string" /> that represents this instance.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
+            => $"({vertices[0]}, {vertices[1]}, {vertices[2]})";
+
+        /// <inheritdoc/>
+        public bool Equals(Face other)
         {
-            return "(" + vertices[0] + ", " + vertices[1] + ", " + vertices[2] + ")";
+            if (other is null)
+            {
+                return false;
+            }
+
+            return vertices[0] == other.vertices[0] && vertices[1] == other.vertices[1] && vertices[2] == other.vertices[2];
         }
 
-        /// <summary>
-        /// Determines whether the specified <see cref="object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
-            if (obj is Face)
+            if (obj is Face other)
             {
-                Face that = (Face)obj;
-                if (vertices[0] == that.vertices[0] && vertices[1] == that.vertices[1] && vertices[2] == that.vertices[2])
-                {
-                    return true;
-                }
+                return Equals(other);
             }
 
             return false;
         }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
+        /// <inheritdoc/>
         public override int GetHashCode()
-        {
-            return (vertices[0].GetHashCode() * 2) + (vertices[1].GetHashCode() * 4) + (vertices[2].GetHashCode() * 8);
-        }
+            => (vertices[0].GetHashCode() * 2) + (vertices[1].GetHashCode() * 4) + (vertices[2].GetHashCode() * 8);
     }
 }

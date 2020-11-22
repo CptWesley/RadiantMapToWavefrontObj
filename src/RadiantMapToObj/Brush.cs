@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
     /// <summary>
     /// Class for Brush.
@@ -61,15 +62,26 @@ namespace RadiantMapToWavefrontObj
                 Match m = regex.Match(line);
                 if (m.Success)
                 {
-                    Vertex v1 = Vertex.CreateFromCode(m.Groups[1].ToString());
-                    Vertex v2 = Vertex.CreateFromCode(m.Groups[5].ToString());
-                    Vertex v3 = Vertex.CreateFromCode(m.Groups[9].ToString());
+                    Vector v1 = CreateVertexFromCode(m.Groups[1].ToString());
+                    Vector v2 = CreateVertexFromCode(m.Groups[5].ToString());
+                    Vector v3 = CreateVertexFromCode(m.Groups[9].ToString());
 
                     planes.Add(new ClippingPlane(v1, v2, v3, m.Groups[13].ToString()));
                 }
             }
 
             return planes;
+        }
+
+        private static Vector CreateVertexFromCode(string code)
+        {
+            string pattern = @"(-?\d+(\.\d+)?)\s(-?\d+(\.\d+)?)\s(-?\d+(\.\d+)?)";
+            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            Match m = regex.Match(code);
+            return new Vector(
+                double.Parse(m.Groups[1].ToString(), CultureInfo.InvariantCulture),
+                double.Parse(m.Groups[3].ToString(), CultureInfo.InvariantCulture),
+                double.Parse(m.Groups[5].ToString(), CultureInfo.InvariantCulture));
         }
     }
 }

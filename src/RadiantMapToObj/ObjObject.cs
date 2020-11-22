@@ -2,105 +2,467 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
+    /// <summary>
+    /// Represents Wavefront Obj objects.
+    /// </summary>
     public class ObjObject
     {
-        public Vertex[] Vertices { get; private set; }
-        public Face[] Faces { get; private set; }
-        private string _name;
-
-        // Constructor for an .obj object.
-        public ObjObject(string name, Vertex[] vertices, Face[] faces)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObjObject"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="vertices">The vertices.</param>
+        /// <param name="faces">The faces.</param>
+        public ObjObject(string name, IEnumerable<Vector> vertices, IEnumerable<Face> faces)
         {
-            _name = name;
+            Name = name;
             Vertices = vertices;
             Faces = faces;
             Cleanup();
         }
 
-        // Returns the name of the object.
-        public string GetName()
+        /// <summary>
+        /// Gets the vertices.
+        /// </summary>
+        public IEnumerable<Vector> Vertices { get; private set; }
+
+        /// <summary>
+        /// Gets the faces.
+        /// </summary>
+        public IEnumerable<Face> Faces { get; private set; }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
+        /// Converts a radiant brush to an obj object.
+        /// </summary>
+        /// <param name="name">The name of the object.</param>
+        /// <param name="brush">The brush.</param>
+        /// <returns>A newly created obj object.</returns>
+        public static ObjObject CreateFromBrush(string name, Brush brush)
         {
-            return _name;
+            if (brush is null)
+            {
+                throw new ArgumentNullException(nameof(brush));
+            }
+
+            IEnumerable<Vector> vertices = FindIntersections(brush.ClippingPlanes);
+            IEnumerable<Face> faces = CreateFaces(vertices, brush.ClippingPlanes);
+            return new ObjObject(name, vertices, faces);
         }
 
-        // Sets the name of the object.
-        public void SetName(string name)
+        /// <summary>
+        /// Converts a radiant patch to an obj object.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="patch">The patch.</param>
+        /// <returns>A newly created obj object.</returns>
+        public static ObjObject CreateFromPatch(string name, Patch patch)
         {
-            _name = name;
+            if (patch is null)
+            {
+                throw new ArgumentNullException(nameof(patch));
+            }
+
+            IEnumerable<Vector> vertices = patch.Vertices;
+            IEnumerable<Face> faces = CreateFaces(patch);
+
+            return new ObjObject(name, vertices, faces);
         }
 
-        // Returns .obj formatted code version of this object.
+        /// <summary>
+        /// Converts to .obj file content.
+        /// </summary>
+        /// <param name="scale">The scale.</param>
+        /// <param name="faceOffset">The face offset.</param>
+        /// <returns>The .obj file content.</returns>
         public string ToCode(double scale, int faceOffset)
         {
-            string res = "o " + _name + "\n";
+            string res = "o " + Name + "\n";
 
             // Write vertices.
-            foreach (Vertex vertex in Vertices)
+            foreach (Vector vertex in Vertices)
             {
                 string x = (vertex.X * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
                 string y = (-vertex.Z * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
                 string z = (-vertex.Y * scale).ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
                 res += "v " + x + " " + y + " " + z + "\n";
             }
-            /*
-            // Write vertex normals. WIP
-            foreach (Vertex vertex in Vertices)
-            {
-                string x = vertex.GetNormal().X.ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
-                string y = vertex.GetNormal().Y.ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
-                string z = vertex.GetNormal().Z.ToString("0.000000", System.Globalization.CultureInfo.InvariantCulture);
-                res += "vn " + x + " " + y + " " + z + "\n";
-            }
-            */
-
-            if (Faces == null)
-            {
-                Console.WriteLine("NULL FACES: " + _name);
-                return res;
-            }
 
             // Write faces.
             foreach (Face face in Faces)
             {
-                int v1 = Vertices.IndexOf(face.Vertex(0)) + 1 + faceOffset;
-                int v2 = Vertices.IndexOf(face.Vertex(1)) + 1 + faceOffset;
-                int v3 = Vertices.IndexOf(face.Vertex(2)) + 1 + faceOffset;
-                //res += "f " + v1 + "//" + v1 + " " + v2 + "//" + v2 + " " + v3 + "//" + v3 + "\n";    //WIP with vertex normals. Broken and not even sure if we want this :s
+                int v1 = Vertices.IndexOf(face.Vertex(0) !.Value) + 1 + faceOffset;
+                int v2 = Vertices.IndexOf(face.Vertex(1) !.Value) + 1 + faceOffset;
+                int v3 = Vertices.IndexOf(face.Vertex(2) !.Value) + 1 + faceOffset;
                 res += "f " + v1 + " " + v2 + " " + v3 + "\n";
             }
 
             return res;
         }
 
-        // Removes all faces containing a texture listed in the filter.
+        /// <summary>
+        /// Removes all textures that are in the filter.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         public void FilterTextures(string[] filter)
         {
-            if (Faces == null)
-                return;
-
             List<Face> newFaces = new List<Face>();
 
             foreach (Face face in Faces)
             {
                 if (!filter.Contains(face.Texture))
+                {
                     newFaces.Add(face);
+                }
             }
 
             Faces = newFaces.ToArray();
             Cleanup();
         }
 
-        // Remove all vertices that have no faces.
+        /// <summary>
+        /// Create a list of all intersection points of each set of three clipping planes.
+        /// </summary>
+        /// <param name="planes">The planes.</param>
+        /// <returns>Gets all intersections of the given planes.</returns>
+        private static IEnumerable<Vector> FindIntersections(IEnumerable<ClippingPlane> planes)
+        {
+            List<Vector> intersections = new List<Vector>();
+
+            // Check every unique combination of three clipping planes and see if we can find an intersection point.
+            int i = 0;
+            foreach (ClippingPlane planeI in planes)
+            {
+                int j = ++i;
+                foreach (ClippingPlane planeJ in planes.Skip(j))
+                {
+                    foreach (ClippingPlane planeK in planes.Skip(++j))
+                    {
+                        if (ClippingPlane.FindIntersection(planeI, planeJ, planeK, out Vector? intersection))
+                        {
+                            // Checks if there does not exist a clipping plane with which we are in front.
+                            // Would result in vertices being added outside of our object.
+                            bool rightSide = true;
+                            foreach (ClippingPlane planeL in planes)
+                            {
+                                if (planeL != planeI && planeL != planeJ && planeL != planeK)
+                                {
+                                    double dot = Vector.DotProduct(intersection !.Value, planeL.Normal) - planeL.D;
+                                    if (dot > 0)
+                                    {
+                                        rightSide = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (rightSide && !intersections.Contains(intersection !.Value))
+                            {
+                                intersections.Add(intersection.Value);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return intersections;
+        }
+
+        /// <summary>
+        /// Use all vertices to create triangle faces of the object.
+        /// </summary>
+        /// <param name="vertices">The vertices.</param>
+        /// <param name="planes">The planes.</param>
+        /// <returns>The faces of the object.</returns>
+        private static IEnumerable<Face> CreateFaces(IEnumerable<Vector> vertices, IEnumerable<ClippingPlane> planes)
+        {
+            List<Face> faces = new List<Face>();
+
+            foreach (ClippingPlane plane in planes)
+            {
+                IEnumerable<Vector> verts = plane.FindVerticesInPlane(vertices);
+
+                foreach (Face face in BowyerWatson(verts))
+                {
+                    FixNormal(face, plane.Normal);
+                    face.SetTexture(plane.Texture);
+                    faces.Add(face);
+                }
+            }
+
+            return faces;
+        }
+
+        /// <summary>
+        /// Apply Bowyer-Watson algorithm to triangulate all the points in a plane.
+        /// Pseudo code taken from related wikipedia page and provided on the side in comments.
+        /// </summary>
+        /// <param name="vertices">The vertices.</param>
+        /// <returns>The faces creates by the bowyer watson algorithm.</returns>
+        private static IEnumerable<Face> BowyerWatson(IEnumerable<Vector> vertices)
+        {
+            if (vertices is null)
+            {
+                throw new ArgumentNullException(nameof(vertices));
+            }
+
+            if (!vertices.CountAtLeast(3))
+            {
+                throw new ArgumentException("Requires at least 3 vertices.", nameof(vertices));
+            }
+
+            List<Face> triangles = new List<Face>();
+
+            // Add super triangle to list.
+            Face superTriangle = FindSuperTriangle(vertices);
+            Vector[] superVertices = superTriangle.GetVertices();
+            triangles.Add(superTriangle);
+
+            // for each point in pointList do
+            foreach (Vector v in vertices)
+            {
+                // badTriangles := empty set
+                List<Face> badTriangles = new List<Face>();
+
+                // for each triangle in triangulation do
+                foreach (Face triangle in triangles)
+                {
+                    // if point is inside circumcircle of triangle
+                    if (InCircumsphere(v, triangle))
+                    {
+                        // add triangle to badTriangles
+                        badTriangles.Add(triangle);
+                    }
+                }
+
+                // polygon := empty set
+                List<Edge> polygon = new List<Edge>();
+
+                // for each triangle in badTriangles do
+                foreach (Face triangle in badTriangles)
+                {
+                    // for each edge in triangle do
+                    foreach (Edge edge in triangle.GetEdges())
+                    {
+                        bool shared = false;
+
+                        // if edge is not shared by any other triangles in badTriangles
+                        foreach (Face otherTriangle in badTriangles)
+                        {
+                            if (triangle == otherTriangle)
+                            {
+                                continue;
+                            }
+
+                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.Inverse))
+                            {
+                                shared = true;
+                                break;
+                            }
+                        }
+
+                        if (!shared)
+                        {
+                            // add edge to polygon
+                            polygon.Add(edge);
+                        }
+                    }
+                }
+
+                // for each triangle in badTriangles do
+                foreach (Face triangle in badTriangles)
+                {
+                    // remove triangle from triangulation
+                    triangles.Remove(triangle);
+                }
+
+                // for each edge in polygon do
+                foreach (Edge e in polygon)
+                {
+                    // newTri := form a triangle from edge to point + add newTri to triangulation
+                    triangles.Add(new Face(e.A, e.B, v));
+                }
+            }
+
+            List<Face> result = new List<Face>();
+
+            // for each triangle in triangulation
+            foreach (Face t in triangles)
+            {
+                Vector[] curVertices = t.GetVertices();
+
+                // if triangle contains a vertex from original super-triangle
+                if (!curVertices.Contains(superVertices[0])
+                    && !curVertices.Contains(superVertices[1])
+                    && !curVertices.Contains(superVertices[2]))
+                {
+                    // remove triangle from triangulation
+                    result.Add(t);
+                }
+            }
+
+            // return triangulation
+            return result;
+        }
+
+        /// <summary>
+        /// Finds the Bowyer-Watson super triangle of a set of vertices.
+        /// </summary>
+        /// <param name="vertices">The vertices.</param>
+        /// <returns>The found super triangle.</returns>
+        private static Face FindSuperTriangle(IEnumerable<Vector> vertices)
+        {
+            // Setup super triangle.
+            double minX, maxX, minY, maxY, minZ, maxZ;
+
+            minX = minY = minZ = double.MaxValue;
+            maxX = maxY = maxZ = double.MinValue;
+
+            foreach (Vector v in vertices)
+            {
+                if (v.X < minX)
+                {
+                    minX = v.X;
+                }
+
+                if (v.X > maxX)
+                {
+                    maxX = v.X;
+                }
+
+                if (v.Y < minY)
+                {
+                    minY = v.Y;
+                }
+
+                if (v.Y > maxY)
+                {
+                    maxY = v.Y;
+                }
+
+                if (v.Z < minZ)
+                {
+                    minZ = v.Z;
+                }
+
+                if (v.Z > maxZ)
+                {
+                    maxZ = v.Z;
+                }
+            }
+
+            Plane plane = new Plane(vertices.Get(0), vertices.Get(1), vertices.Get(2));
+
+            Vector a = new Vector(minX, minY, minZ);
+            Vector b = new Vector(maxX, maxY, maxZ);
+
+            Vector ab = b - a;
+            a -= 10 * ab;
+            b += 10 * ab;
+
+            Vector triBase = Vector.CrossProduct(ab, plane.Normal).Unit;
+
+            double length = (b - a).Length;
+
+            Vector c = a + (triBase * length);
+            Vector d = a - (triBase * length);
+
+            return new Face(b, c, d);
+        }
+
+        /// <summary>
+        /// Checks if a point lies in the circumsphere of a face.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <param name="face">The face.</param>
+        /// <returns>True if the point is in the circumsphere, false otherwise.</returns>
+        private static bool InCircumsphere(Vector point, Face face)
+        {
+            Tuple<Vector, double> cs = face.GetCircumsphere();
+            if (point.Distance(cs.Item1) < cs.Item2)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Fix normals of faces pointing in the wrong direction.
+        /// </summary>
+        /// <param name="face">The face.</param>
+        /// <param name="normal">The normal.</param>
+        private static void FixNormal(Face face, Vector normal)
+        {
+            // Check if the normal is correct, if not, invert the face.
+            if (VerifyNormal(face, normal))
+            {
+                return;
+            }
+
+            face.Swap(0, 2);
+        }
+
+        /// <summary>
+        /// Checks if a normal of a face is equal to a certain normal.
+        /// </summary>
+        /// <param name="face">The face.</param>
+        /// <param name="normal">The normal.</param>
+        /// <returns>True if the normal is equal, false otherwise.</returns>
+        private static bool VerifyNormal(Face face, Vector normal)
+        {
+            Vector v1 = (Vector)face.Vertex(1) ! - (Vector)face.Vertex(0) !;
+            Vector v2 = (Vector)face.Vertex(2) ! - (Vector)face.Vertex(0) !;
+
+            Vector faceNormal = Vector.CrossProduct(v1, v2) * -1;
+            if (normal.DirectionEquals(faceNormal))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Creates faces from a patch.
+        /// </summary>
+        /// <param name="patch">The patch.</param>
+        /// <returns>The faces that fill the grid.</returns>
+        private static IEnumerable<Face> CreateFaces(Patch patch)
+        {
+            List<Face> faces = new List<Face>();
+
+            for (int x = 0; x < patch.Width - 1; ++x)
+            {
+                for (int y = 0; y < patch.Height - 1; ++y)
+                {
+                    faces.Add(new Face(patch[x, y], patch[x + 1, y], patch[x, y + 1]));
+                    faces.Add(new Face(patch[x, y + 1], patch[x + 1, y], patch[x + 1, y + 1]));
+                }
+            }
+
+            return faces;
+        }
+
+        /// <summary>
+        /// Removes all vertices without faces.
+        /// </summary>
         private void Cleanup()
         {
             if (Faces == null)
+            {
                 return;
+            }
 
-            List<Vertex> newVertices = new List<Vertex>();
+            List<Vector> newVertices = new List<Vector>();
 
-            foreach (Vertex vertex in Vertices)
+            foreach (Vector vertex in Vertices)
             {
                 bool contained = false;
 
@@ -114,268 +476,12 @@ namespace RadiantMapToWavefrontObj
                 }
 
                 if (contained)
+                {
                     newVertices.Add(vertex);
+                }
             }
 
             Vertices = newVertices.ToArray();
-        }
-
-        // Converts a radiant brush to an obj object.
-        public static ObjObject CreateFromBrush(string name, Brush brush)
-        {
-            Vertex[] vertices = FindIntersections(brush.ClippingPlanes);
-            Face[] faces = CreateFaces(vertices, brush.ClippingPlanes);
-            //Vector[] normals = CreateNormals(brush.ClippingPlanes);                           // WIP
-
-            return new ObjObject(name, vertices, faces);
-        }
-
-        // Converts a radiant patch to an obj object.
-        public static ObjObject CreateFromPatch(string name, Patch patch)
-        {
-            Vertex[] vertices = patch.GetVertices();
-            Face[] faces = CreateFaces(patch.Grid);
-
-            return new ObjObject(name, vertices, faces);
-        }
-
-        // Create normals of the object based on the clipping plane intersections.
-        private static Vector[] CreateNormals(ClippingPlane[] planes)
-        {
-            List<Vector> normals = new List<Vector>();
-
-            foreach (ClippingPlane plane in planes)
-                normals.Add(plane.Normal);
-
-            return normals.ToArray();
-        }
-
-        // Create a list of all intersection points of each set of three clipping planes.
-        private static Vertex[] FindIntersections(ClippingPlane[] planes)
-        {
-            List<Vertex> intersections = new List<Vertex>();
-
-            // Check every unique combination of three clipping planes and see if we can find an intersection point.
-            for (int i = 0; i < planes.Length; ++i)
-            {
-                for (int j = i; j < planes.Length; ++j)
-                {
-                    if (i == j)
-                        continue;
-                    for (int k = j; k < planes.Length; ++k)
-                    {
-                        if (i == k || j == k)
-                            continue;
-                        Vertex intersection;
-                        if (ClippingPlane.FindIntersection(planes[i], planes[j], planes[k], out intersection))
-                        {
-                            // Checks if there does not exist a clipping plane with which we are in front.
-                            // Would result in vertices being added outside of our object.
-                            bool rightSide = true;
-                            for (int l = 0; l < planes.Length; ++l)
-                            {
-                                if (planes[l] != planes[i] && planes[l] != planes[j] && planes[l] != planes[k])
-                                {
-                                    double dot = Vector.DotProduct((Vector)intersection, planes[l].Normal) - planes[l].D;
-                                    if (dot > 0)
-                                    {
-                                        rightSide = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (rightSide && !intersections.Contains(intersection))
-                                intersections.Add(intersection);
-                        }
-                    }
-                }
-            }
-
-            return intersections.ToArray();
-        }
-
-        // Use all vertices to create triangle faces of the object.
-        private static Face[] CreateFaces(Vertex[] vertices, ClippingPlane[] planes)
-        {
-            List<Face> faces = new List<Face>();
-
-            for (int i = 0; i < planes.Length; ++i)
-            {
-                Vertex[] verts = planes[i].FindVerticesInPlane(vertices);
-
-                // Abort when there are no vertices anyway. Something went wrong...
-                if (verts.Length < 3)
-                    return null;
-
-                foreach (Face face in BowyerWatson(verts))
-                {
-                    FixNormal(face, planes[i].Normal);
-                    face.SetTexture(planes[i].Texture);
-                    faces.Add(face);
-                }
-            }
-
-            return faces.ToArray();
-        }
-
-        // Apply Bowyer-Watson algorithm to triangulate all the points in a plane.
-        // Pseudo code taken from related wikipedia page and provided on the side in comments.
-        public static Face[] BowyerWatson(Vertex[] vertices)
-        {
-            List<Face> triangles = new List<Face>();
-
-            // Add super triangle to list.
-            Face superTriangle = FindSuperTriangle(vertices);
-            Vertex[] superVertices = superTriangle.GetVertices();
-            triangles.Add(superTriangle);
-
-            // Add points.
-            foreach (Vertex v in vertices)                                                              // for each point in pointList do
-            {
-                List<Face> badTriangles = new List<Face>();                                             // badTriangles := empty set
-                foreach (Face triangle in triangles)                                                    // for each triangle in triangulation do
-                {
-                    if (InCircumsphere(v, triangle))                                                    // if point is inside circumcircle of triangle
-                        badTriangles.Add(triangle);                                                     // add triangle to badTriangles
-                }
-
-                List<Edge> polygon = new List<Edge>();                                                  // polygon := empty set
-
-                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
-                {
-                    foreach (Edge edge in triangle.GetEdges())                                          // for each edge in triangle do
-                    {
-                        bool shared = false;
-                        foreach (Face otherTriangle in badTriangles)                                    // if edge is not shared by any other triangles in badTriangles
-                        {
-                            if (triangle == otherTriangle)
-                                continue;
-                            if (otherTriangle.GetEdges().Contains(edge) || otherTriangle.GetEdges().Contains(edge.Inverse))
-                            {
-                                shared = true;
-                                break;
-                            }
-                        }
-                        if (!shared)
-                            polygon.Add(edge);                                                          // add edge to polygon
-                    }
-                }
-
-                foreach (Face triangle in badTriangles)                                                 // for each triangle in badTriangles do
-                    triangles.Remove(triangle);                                                         // remove triangle from triangulation
-
-                foreach (Edge e in polygon)                                                             // for each edge in polygon do
-                    triangles.Add(new Face(e.A, e.B, v));                                               // newTri := form a triangle from edge to point + add newTri to triangulation
-            }
-
-            List<Face> result = new List<Face>();
-
-            foreach (Face t in triangles)                                                               // for each triangle in triangulation
-            {
-                Vertex[] curVertices = t.GetVertices();
-                if (!curVertices.Contains(superVertices[0])                                             // if triangle contains a vertex from original super-triangle
-                    && !curVertices.Contains(superVertices[1])
-                    && !curVertices.Contains(superVertices[2]))
-                    result.Add(t);                                                                      // remove triangle from triangulation
-            }
-
-            return result.ToArray();                                                                    // return triangulation
-        }
-
-        // Finds the Bowyer-Watson super triangle of a set of vertices.
-        private static Face FindSuperTriangle(Vertex[] vertices)
-        {
-            // Setup super triangle.
-            double minX, maxX, minY, maxY, minZ, maxZ;
-
-            minX = minY = minZ = Double.MaxValue;
-            maxX = maxY = maxZ = Double.MinValue;
-
-            foreach (Vertex v in vertices)
-            {
-                if (v.X < minX)
-                    minX = v.X;
-                if (v.X > maxX)
-                    maxX = v.X;
-
-                if (v.Y < minY)
-                    minY = v.Y;
-                if (v.Y > maxY)
-                    maxY = v.Y;
-
-                if (v.Z < minZ)
-                    minZ = v.Z;
-                if (v.Z > maxZ)
-                    maxZ = v.Z;
-            }
-
-            Plane plane = new Plane(vertices[0], vertices[1], vertices[2]);
-
-            Vertex a = new Vertex(minX, minY, minZ);
-            Vertex b = new Vertex(maxX, maxY, maxZ);
-
-            Vector ab = (Vector)(b - a);
-            a -= 10*ab;
-            b += 10*ab;
-
-            Vector triBase = Vector.CrossProduct(ab, plane.Normal).Unit();
-
-            double length = ((Vector)(b - a)).Length();
-
-            Vertex c = a + triBase * length;
-            Vertex d = a - triBase * length;
-
-            return new Face(b, c, d);
-        }
-
-        // Checks if a point lies in the circumsphere of a face.
-        private static bool InCircumsphere(Vertex point, Face face)
-        {
-            Tuple<Vertex, double> cs = face.GetCircumsphere();
-            if (point.Distance(cs.Item1) < cs.Item2)
-                return true;
-            return false;
-        }
-
-        // Fix normals of faces pointing in the wrong direction.
-        private static void FixNormal(Face face, Vector normal)
-        {
-            // Check if the normal is correct, if not, invert the face.
-            if (VerifyNormal(face, normal))
-                return;
-            face.Swap(0, 2);
-        }
-
-        // Checks if a normal of a face is equal to a certain normal.
-        private static bool VerifyNormal(Face face, Vector normal)
-        {
-            Vector v1 = (Vector)face.Vertex(1) - (Vector)face.Vertex(0);
-            Vector v2 = (Vector)face.Vertex(2) - (Vector)face.Vertex(0);
-
-            Vector faceNormal = Vector.CrossProduct(v1, v2)*-1;
-            if (normal.DirectionEquals(faceNormal))
-                return true;
-            return false;
-        }
-
-        // Creates faces from a grid of vertices.
-        private static Face[] CreateFaces(Vertex[][] grid)
-        {
-            List<Face> faces = new List<Face>();
-
-            for (int x = 0; x < grid.Length; ++x)
-            {
-                for (int y = 0; y < grid[x].Length; ++y)
-                {
-                    if (x + 1 < grid.Length && y + 1 < grid[x].Length)
-                    {
-                        faces.Add(new Face(grid[x][y], grid[x+1][y], grid[x][y+1]));
-                        faces.Add(new Face(grid[x][y+1], grid[x+1][y], grid[x+1][y+1]));
-                    }
-                }
-            }
-
-            return faces.ToArray();
         }
     }
 }

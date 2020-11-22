@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
     /// <summary>
     /// Class for Edge.
@@ -12,7 +12,7 @@ namespace RadiantMapToWavefrontObj
         /// </summary>
         /// <param name="a">Vertex a of the edge.</param>
         /// <param name="b">Vertex b of the edge.</param>
-        public Edge(Vertex a, Vertex b)
+        public Edge(Vector a, Vector b)
         {
             A = a;
             B = b;
@@ -21,25 +21,25 @@ namespace RadiantMapToWavefrontObj
         /// <summary>
         /// Gets one of the vertices of the edge.
         /// </summary>
-        public Vertex A { get; }
+        public Vector A { get; }
 
         /// <summary>
         /// Gets one of the vertices of the edge.
         /// </summary>
-        public Vertex B { get; }
+        public Vector B { get; }
 
         /// <summary>
         /// Gets the vector.
         /// </summary>
         /// <returns>the Vector.</returns>
         public Vector Vector
-            => (Vector)B - (Vector)A;
+            => B - A;
 
         /// <summary>
         /// Gets the length.
         /// </summary>
         public double Length
-            => Vector.Length();
+            => Vector.Length;
 
         /// <summary>
         /// Gets the inverse.
@@ -68,26 +68,13 @@ namespace RadiantMapToWavefrontObj
         /// The result of the non-equality operator.
         /// </returns>
         public static bool operator !=(Edge a, Edge b)
-        {
-            return !(a == b);
-        }
+            => !(a == b);
 
-        /// <summary>
-        /// Converts to string.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="string" /> that represents this instance.
-        /// </returns>
+        /// <inheritdoc/>
         public override string ToString()
             => $"<{A}, {B}>";
 
-        /// <summary>
-        /// Determines whether the specified <see cref="object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
+        /// <inheritdoc/>
         public override bool Equals(object obj)
         {
             if (obj is Edge that)
@@ -98,20 +85,12 @@ namespace RadiantMapToWavefrontObj
             return false;
         }
 
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
-        /// </returns>
+        /// <inheritdoc/>
         public override int GetHashCode()
-        {
-            return A.GetHashCode() + (2 * B.GetHashCode());
-        }
+            => A.GetHashCode() + (2 * B.GetHashCode());
 
         /// <inheritdoc/>
         public bool Equals(Edge other)
             => A == other.A && B == other.B;
-
     }
 }

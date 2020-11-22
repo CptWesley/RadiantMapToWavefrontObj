@@ -2,57 +2,38 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
+    /// <summary>
+    /// Represents a radiant map.
+    /// </summary>
     public class RadiantMap
     {
-        private List<Brush> _brushes;
-        private List<Patch> _patches;
-        public Brush[] Brushes => _brushes.ToArray();
-        public Patch[] Patches => _patches.ToArray();
+        private List<Brush> brushes = new List<Brush>();
+        private List<Patch> patches = new List<Patch>();
 
-        // Constructor that creates a radiant map object.
-        public RadiantMap()
-        {
-            _brushes = new List<Brush>();
-            _patches = new List<Patch>();
-        }
+        /// <summary>
+        /// Gets the brushes.
+        /// </summary>
+        public IEnumerable<Brush> Brushes => brushes;
 
-        // Adds a brush to the radiant map.
-        public void Add(Brush brush)
-        {
-            _brushes.Add(brush);
-        }
+        /// <summary>
+        /// Gets the patches.
+        /// </summary>
+        public IEnumerable<Patch> Patches => patches;
 
-        // Adds a patch to the radiant map.
-        public void Add(Patch patch)
-        {
-            _patches.Add(patch);
-        }
-
-        // Returns a string format of the entire radiant map.
-        public override string ToString()
-        {
-            string res = "";
-
-            for (int i = 0; i < Brushes.Length; ++i)
-            {
-                res += "Brush " + i + ":\n";
-                foreach (ClippingPlane f in Brushes[i].ClippingPlanes)
-                    res += f + "\n";
-            }
-
-            return res;
-        }
-
-        // Parses a .map file to our radiant map object.
+        /// <summary>
+        /// Parses a .map file to our radiant map object.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns>The parsed radiant map.</returns>
         public static RadiantMap Parse(string path)
         {
             string[] content = File.ReadAllLines(path);
             bool started = false;
             bool inBrush = false;
             bool inPatch = false;
-            List<string> brushLines = null;
+            List<string>? brushLines = null;
 
             RadiantMap map = new RadiantMap();
 
@@ -60,7 +41,9 @@ namespace RadiantMapToWavefrontObj
             {
                 // Skip empty lines.
                 if (content[i].Length < 1)
+                {
                     continue;
+                }
 
                 if (started)
                 {
@@ -73,38 +56,89 @@ namespace RadiantMapToWavefrontObj
                             brushLines.Add(content[i]);
                         }
                         else if (!inPatch)
+                        {
                             inPatch = true;
+                        }
                         else
-                            return null;
+                        {
+                            throw new ArgumentException("Not a proper .map file.");
+                        }
                     }
                     else if (content[i].Contains("}"))
                     {
                         if (inPatch)
                         {
-                            map.Add(Patch.CreateFromCode(brushLines.ToArray()));
+                            Patch? patch = Patch.CreateFromCode(brushLines!.ToArray());
+                            if (patch != null)
+                            {
+                                map.Add(patch);
+                            }
+
                             inPatch = false;
+                            brushLines = new List<string>();
                         }
                         else if (inBrush)
                         {
-                            map.Add(Brush.CreateFromCode(brushLines.ToArray()));
+                            Brush? brush = Brush.CreateFromCode(brushLines!.ToArray());
+                            if (brush != null)
+                            {
+                                map.Add(brush);
+                            }
+
                             inBrush = false;
                             brushLines = new List<string>();
                         }
                         else
+                        {
                             break;
+                        }
                     }
                     else if (inBrush)
-                        brushLines.Add(content[i]);
+                    {
+                        brushLines!.Add(content[i]);
+                    }
                 }
                 else
                 {
                     if (content[i][0] == '{')
+                    {
                         started = true;
+                    }
                 }
-
             }
 
             return map;
+        }
+
+        /// <summary>
+        /// Adds a brush to the radiant map.
+        /// </summary>
+        /// <param name="brush">The brush.</param>
+        public void Add(Brush brush)
+            => brushes.Add(brush);
+
+        /// <summary>
+        /// Adds a patch to the radiant map.
+        /// </summary>
+        /// <param name="patch">The patch.</param>
+        public void Add(Patch patch)
+            => patches.Add(patch);
+
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            string res = string.Empty;
+
+            for (int i = 0; i < brushes.Count; ++i)
+            {
+                res += "Brush " + i + ":\n";
+                foreach (ClippingPlane f in brushes[i].ClippingPlanes)
+                {
+                    res += f + "\n";
+                }
+            }
+
+            return res;
         }
     }
 }

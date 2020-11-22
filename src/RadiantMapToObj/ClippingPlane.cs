@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
     /// <summary>
     /// Class for ClippingPlane.
@@ -15,14 +15,14 @@ namespace RadiantMapToWavefrontObj
         /// <param name="v2">Vertex 2.</param>
         /// <param name="v3">Vertex 3.</param>
         /// <param name="texture">The texture.</param>
-        public ClippingPlane(Vertex v1, Vertex v2, Vertex v3, string texture)
+        public ClippingPlane(Vector v1, Vector v2, Vector v3, string texture)
             : base(v1, v2, v3)
             => Texture = texture;
 
         /// <summary>
         /// Gets the texture.
         /// </summary>
-        public string Texture { get; private set; }
+        public string Texture { get; }
 
         /// <summary>
         /// Checks if three clipping planes intersect and if so, returns an intersection point.
@@ -32,7 +32,7 @@ namespace RadiantMapToWavefrontObj
         /// <param name="c">Plane c.</param>
         /// <param name="intersection">The intersection.</param>
         /// <returns>If an intersection exists.</returns>
-        public static bool FindIntersection(Plane a, Plane b, Plane c, out Vertex? intersection)
+        public static bool FindIntersection(Plane a, Plane b, Plane c, out Vector? intersection)
         {
             if (a is null)
             {
@@ -61,26 +61,14 @@ namespace RadiantMapToWavefrontObj
             double y = Determinant(a.A, a.D, a.C, b.A, b.D, b.C, c.A, c.D, c.C) / det;
             double z = Determinant(a.A, a.B, a.D, b.A, b.B, b.D, c.A, c.B, c.D) / det;
 
-            intersection = new Vertex(x, y, z);
-            intersection.SetNormal((a.Normal + b.Normal + c.Normal).Unit());
+            intersection = new Vector(x, y, z);
 
             return true;
         }
 
-        /// <summary>
-        /// Sets the texture.
-        /// </summary>
-        /// <param name="texture">The texture.</param>
-        public void SetTexture(string texture)
-        {
-            Texture = texture;
-        }
-
         // Calculates the determinant of a 2x2 matrix. (Can be done less verbose...)
         private static double Determinant(double a11, double a12, double a21, double a22)
-        {
-            return (a11 * a22) - (a12 * a21);
-        }
+            => (a11 * a22) - (a12 * a21);
 
         // Calculates the determinant of a 3x3 matrix. (Can definitely be done less verbose...)
         private static double Determinant(double a11, double a12, double a13, double a21, double a22, double a23, double a31, double a32, double a33)

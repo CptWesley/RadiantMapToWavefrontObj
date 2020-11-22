@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj.App
 {
     /// <summary>
     /// Entry class Program.

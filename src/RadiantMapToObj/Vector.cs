@@ -1,99 +1,241 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
-namespace RadiantMapToWavefrontObj
+namespace RadiantMapToObj
 {
-    public class Vector : Point3D
+    /// <summary>
+    /// Represents a point in 3D space.
+    /// </summary>
+    [SuppressMessage("Microsoft.Usage", "CA2225", Justification = "Would make code more convoluted.")]
+    public struct Vector : IEquatable<Vector>
     {
-        public Vector(double x, double y, double z) : base(x, y, z){}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Vector"/> struct.
+        /// </summary>
+        /// <param name="x">The x-axis value.</param>
+        /// <param name="y">The y-axis value.</param>
+        /// <param name="z">The z-axis value.</param>
+        public Vector(double x, double y, double z)
+            => (X, Y, Z) = (x, y, z);
 
-        // Implicit cast from Vertex to Vector.
-        public static explicit operator Vector(Vertex a)
+        /// <summary>
+        /// Gets the x-axis value.
+        /// </summary>
+        public double X { get; }
+
+        /// <summary>
+        /// Gets the y-axis value.
+        /// </summary>
+        public double Y { get; }
+
+        /// <summary>
+        /// Gets the z-axis value.
+        /// </summary>
+        public double Z { get; }
+
+        /// <summary>
+        /// Gets the length of a vector.
+        /// </summary>
+        public double Length => Math.Sqrt(SquareLength);
+
+        /// <summary>
+        /// Gets the squared length of a vector.
+        /// </summary>
+        public double SquareLength => (X * X) + (Y * Y) + (Z * Z);
+
+        /// <summary>
+        /// Gets the unit vector of this vector.
+        /// </summary>
+        public Vector Unit
         {
-            return new Vector(a.X, a.Y, a.Z);
+            get
+            {
+                double length = Length;
+                return new Vector(X / length, Y / length, Z / length);
+            }
         }
 
-        // Calculates the cross product between two vectors.
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator ==(Vector a, Vector b)
+            => a.Equals(b);
+
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static bool operator !=(Vector a, Vector b)
+            => !(a == b);
+
+        /// <summary>
+        /// Implements the operator +.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator +(Vector a, Vector b)
+            => new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+
+        /// <summary>
+        /// Implements the operator -.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator -(Vector a, Vector b)
+            => new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+
+        /// <summary>
+        /// Implements the operator *.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator *(Vector a, Vector b)
+            => new Vector(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+
+        /// <summary>
+        /// Implements the operator *.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator *(Vector a, double b)
+            => new Vector(a.X * b, a.Y * b, a.Z * b);
+
+        /// <summary>
+        /// Implements the operator *.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator *(double a, Vector b)
+            => new Vector(a * b.X, a * b.Y, a * b.Z);
+
+        /// <summary>
+        /// Implements the operator *.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator /(Vector a, Vector b)
+            => new Vector(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+
+        /// <summary>
+        /// Implements the operator /.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The result of the operator.</returns>
+        public static Vector operator /(Vector a, double b)
+            => new Vector(a.X / b, a.Y / b, a.Z / b);
+
+        /// <summary>
+        /// Calculates the cross product between two vectors.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The cross product of the two vectors.</returns>
         public static Vector CrossProduct(Vector a, Vector b)
         {
-            double x = a.Y*b.Z - a.Z*b.Y;
-            double y = a.Z*b.X - a.X*b.Z;
-            double z = a.X*b.Y - a.Y*b.X;
+            double x = (a.Y * b.Z) - (a.Z * b.Y);
+            double y = (a.Z * b.X) - (a.X * b.Z);
+            double z = (a.X * b.Y) - (a.Y * b.X);
             return new Vector(x, y, z);
         }
 
-        // Calculates the dot product between two vectors.
+        /// <summary>
+        /// Calculates the dot product between two vectors.
+        /// </summary>
+        /// <param name="a">The first vector.</param>
+        /// <param name="b">The second vector.</param>
+        /// <returns>The dot product of the two vectors.</returns>
         public static double DotProduct(Vector a, Vector b)
+            => (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+
+        /// <summary>
+        /// Get the distance between this point and another given point.
+        /// </summary>
+        /// <param name="other">The other point.</param>
+        /// <returns>The distance between the two points.</returns>
+        public double Distance(Vector other)
         {
-            return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+            double dX = X - other.X;
+            double dY = Y - other.Y;
+            double dZ = Z - other.Z;
+            return Math.Sqrt((dX * dX) + (dY * dY) + (dZ * dZ));
         }
 
-        // Calculates the length of a vector.
-        public double Length()
-        {
-            return Math.Sqrt(X*X+Y*Y+Z*Z);
-        }
+        /// <inheritdoc/>
+        public override string ToString()
+            => $"<{X}, {Y}, {Z}>";
 
-        // Calculates the squared length of a vector.
-        public double SquareLength()
-        {
-            return X*X + Y*Y + Z*Z;
-        }
+        /// <inheritdoc/>
+        public bool Equals(Vector other)
+            => ApproximatelyEquals(X, other.X) && ApproximatelyEquals(Y, other.Y) && ApproximatelyEquals(Z, other.Z);
 
-        // Returns a unit version of this vector.
-        public Vector Unit()
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
         {
-            double length = Length();
-            return new Vector(X/length, Y/length, Z/length);
-        }
+            if (obj is Vector other)
+            {
+                return Equals(other);
+            }
 
-        // Checks if two vectors have the same direction.
-        public bool DirectionEquals(Vector other)
-        {
-            if (Unit().Equals(other.Unit()))
-                return true;
             return false;
         }
 
-        // Override + operator.
-        public static Vector operator +(Vector a, Vector b)
+        /// <inheritdoc/>
+        public override int GetHashCode()
+            => (int)Math.Floor((X * 2) + (Y * 4) + (Z * 8));
+
+        /// <summary>
+        /// Checks if the vector coordinates lie on a plane.
+        /// </summary>
+        /// <param name="plane">The plane.</param>
+        /// <returns>True if the vector is on the plane, false otherwise.</returns>
+        public bool OnPlane(Plane plane)
         {
-            return new Vector(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+            if (plane is null)
+            {
+                throw new ArgumentNullException(nameof(plane));
+            }
+
+            double left = (X * plane.A) + (Y * plane.B) + (Z * plane.C);
+            double right = plane.D;
+            bool res = left >= right - 1e-6 && left <= right + 1e-6;
+            return res;
         }
 
-        // Override - operator.
-        public static Vector operator -(Vector a, Vector b)
-        {
-            return new Vector(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-        }
+        /// <summary>
+        /// Checks if two vectors have the same direction.
+        /// </summary>
+        /// <param name="other">The other vector.</param>
+        /// <returns>True if direction is equal, false otherwise.</returns>
+        public bool DirectionEquals(Vector other)
+            => Unit.Equals(other.Unit);
 
-        // Override * operator for two points.
-        public static Vector operator *(Vector a, Vector b)
+        /// <summary>
+        /// Checks if two doubles are roughly equal.
+        /// </summary>
+        /// <param name="a">The first double.</param>
+        /// <param name="b">The second double.</param>
+        /// <returns>True if they are roughly equal.</returns>
+        private static bool ApproximatelyEquals(double a, double b)
         {
-            return new Vector(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
-        }
+            double delta = a - b;
+            if (delta >= -1e-6 && delta <= 1e-6)
+            {
+                return true;
+            }
 
-        // Override * operator for scalars.
-        public static Vector operator *(Vector a, double b)
-        {
-            return new Vector(a.X * b, a.Y * b, a.Z * b);
-        }
-
-        // Override * operator for scalars reversed.
-        public static Vector operator *(double a, Vector b)
-        {
-            return new Vector(a * b.X, a * b.Y, a * b.Z);
-        }
-
-        // Override / operator for two points.
-        public static Vector operator /(Vector a, Vector b)
-        {
-            return new Vector(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
-        }
-
-        // Override * operator for scalars.
-        public static Vector operator /(Vector a, double b)
-        {
-            return new Vector(a.X / b, a.Y / b, a.Z / b);
+            return false;
         }
     }
 }
