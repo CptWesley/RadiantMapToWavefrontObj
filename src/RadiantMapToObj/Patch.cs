@@ -18,17 +18,9 @@ namespace RadiantMapToObj
         /// <summary>
         /// Initializes a new instance of the <see cref="Patch"/> class.
         /// </summary>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
-        private Patch(int width, int height)
-        {
-            grid = new Vector[width][];
-
-            for (int i = 0; i < grid.Length; ++i)
-            {
-                grid[i] = new Vector[height];
-            }
-        }
+        /// <param name="grid">The grid.</param>
+        public Patch(Vector[][] grid)
+            => this.grid = grid;
 
         /// <summary>
         /// Gets the width.
@@ -78,7 +70,17 @@ namespace RadiantMapToObj
                 ++line;
                 if (m.Success)
                 {
-                    patch = new Patch(int.Parse(m.Groups[2].ToString(), CultureInfo.InvariantCulture), int.Parse(m.Groups[3].ToString(), CultureInfo.InvariantCulture));
+                    int width = int.Parse(m.Groups[2].ToString(), CultureInfo.InvariantCulture);
+                    int height = int.Parse(m.Groups[3].ToString(), CultureInfo.InvariantCulture);
+
+                    Vector[][] grid = new Vector[width][];
+
+                    for (int i = 0; i < grid.Length; ++i)
+                    {
+                        grid[i] = new Vector[height];
+                    }
+
+                    patch = new Patch(grid);
                     break;
                 }
             }
