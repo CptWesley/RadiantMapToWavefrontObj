@@ -190,8 +190,8 @@ namespace RadiantMapToObj
 
                 foreach (Face face in BowyerWatson(verts, plane.Texture))
                 {
-                    FixNormal(face, plane.Normal);
-                    faces.Add(face);
+                    Face fixedFace = FixNormal(face, plane.Normal);
+                    faces.Add(fixedFace);
                 }
             }
 
@@ -217,7 +217,7 @@ namespace RadiantMapToObj
                 throw new ArgumentException("Requires at least 3 vertices.", nameof(vertices));
             }
 
-            List<Face> triangles = new List<Face>();
+            HashSet<Face> triangles = new HashSet<Face>();
 
             // Add super triangle to list.
             Face superTriangle = FindSuperTriangle(vertices, texture);
@@ -227,7 +227,7 @@ namespace RadiantMapToObj
             foreach (Vector v in vertices)
             {
                 // badTriangles := empty set
-                List<Face> badTriangles = new List<Face>();
+                HashSet<Face> badTriangles = new HashSet<Face>();
 
                 // for each triangle in triangulation do
                 foreach (Face triangle in triangles)
@@ -241,7 +241,7 @@ namespace RadiantMapToObj
                 }
 
                 // polygon := empty set
-                List<Edge> polygon = new List<Edge>();
+                HashSet<Edge> polygon = new HashSet<Edge>();
 
                 // for each triangle in badTriangles do
                 foreach (Face triangle in badTriangles)
@@ -289,7 +289,7 @@ namespace RadiantMapToObj
                 }
             }
 
-            List<Face> result = new List<Face>();
+            HashSet<Face> result = new HashSet<Face>();
 
             // for each triangle in triangulation
             foreach (Face t in triangles)
