@@ -4,7 +4,7 @@ using System.Linq;
 using RadiantMapToObj.Radiant;
 using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Internal
+namespace RadiantMapToObj.Internal.Conversion
 {
     /// <summary>
     /// Provides helper functions for converting brushes to objects.

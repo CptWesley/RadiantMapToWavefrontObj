@@ -2,7 +2,7 @@
 using RadiantMapToObj.Radiant;
 using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Internal
+namespace RadiantMapToObj.Internal.Conversion
 {
     /// <summary>
     /// Provides helper functions for converting maps to objs.
