@@ -6,7 +6,7 @@ using Warpstone;
 using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;
 using static Warpstone.Parsers.BasicParsers;
 
-namespace RadiantMapToObj.Internal.Parsing
+namespace RadiantMapToObj.Internal.Parsing.Radiant
 {
     /// <summary>
     /// Provides helper methods for parsing maps.
