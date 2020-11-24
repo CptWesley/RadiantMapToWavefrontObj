@@ -51,7 +51,7 @@ namespace RadiantMapToObj.Internal.Parsing
             .Transform((n, c) =>
             {
                 Console.WriteLine($"Parsing class '{n}' : {c}");
-                return new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField)!, c.Where(x => x is VmfClass).Select(x => x as VmfClass)!);
+                return new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField) !, c.Where(x => x is VmfClass).Select(x => x as VmfClass) !);
             });
 
         private static readonly IParser<IEnumerable<IRadiantEntity>> Solids
