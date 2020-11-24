@@ -111,9 +111,7 @@ namespace RadiantMapToObj.Internal.Conversion
 
             if (!vertices.CountAtLeast(3))
             {
-                return Array.Empty<Face>();
-
-                // TODO handle this better.
+                throw new ArgumentException("Requires at least 3 vertices.", nameof(vertices));
             }
 
             HashSet<Face> triangles = new HashSet<Face>();

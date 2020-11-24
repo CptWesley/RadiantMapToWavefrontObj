@@ -6,7 +6,7 @@ namespace RadiantMapToObj.Internal.Parsing
     /// <summary>
     /// Parser which parser a given regular expression pattern.
     /// </summary>
-    /// <seealso cref="Warpstone.Parser{T}" />
+    /// <seealso cref="Parser{T}" />
     internal class CompiledRegexParser : Parser<string>
     {
         private readonly Regex regex;

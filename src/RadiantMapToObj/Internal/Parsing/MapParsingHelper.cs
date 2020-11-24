@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using RadiantMapToObj.Radiant;
 using Warpstone;
@@ -35,12 +34,6 @@ namespace RadiantMapToObj.Internal.Parsing
         /// <param name="input">The content of the .map file.</param>
         /// <returns>The parsed radiant map.</returns>
         public static RadiantMap Parse(string input)
-        {
-            RadiantMap map = Or(VmfParsingHelper.Vmf, Map).Parse(input);
-
-            Console.WriteLine($"Finished: {map}");
-
-            return map;
-        }
+            => Or(VmfParsingHelper.Vmf, Map).Parse(input);
     }
 }
