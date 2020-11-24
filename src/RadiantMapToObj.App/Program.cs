@@ -30,7 +30,7 @@ namespace RadiantMapToObj.App
             // Check for each argument if it is a .map we should convert.
             foreach (string arg in args)
             {
-                if (File.Exists(arg) && Path.GetExtension(arg) == ".map")
+                if (File.Exists(arg))
                 {
                     ConvertFile(arg);
                     success = true;

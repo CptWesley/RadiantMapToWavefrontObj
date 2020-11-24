@@ -24,6 +24,20 @@ namespace RadiantMapToObj.Internal.Parsing
         /// </summary>
         internal static readonly IParser<string> OptionalLayout = Or(Layout, Create(string.Empty));
 
+        private static readonly IParser<string> StringContent
+            = Or(Regex("[^\"\\n\\r]"), String("\\\""));
+
+        private static readonly IParser<string> String
+            = Char('"').Then(Many(StringContent)).ThenSkip(Char('"'))
+            .WithName("string")
+            .Transform(x => string.Join(string.Empty, x));
+
+        /// <summary>
+        /// Parses a field.
+        /// </summary>
+        internal static readonly IParser<(string, string)> Field
+            = String.ThenSkip(OptionalLayout).ThenAdd(String);
+
         /// <summary>
         /// Parses texture names.
         /// </summary>

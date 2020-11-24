@@ -12,17 +12,6 @@ namespace RadiantMapToObj.Internal.Parsing
     /// </summary>
     internal static class MapParsingHelper
     {
-        private static readonly IParser<string> StringContent
-            = Or(Regex("[^\"\\n\\r]"), String("\\\""));
-
-        private static readonly IParser<string> String
-            = Char('"').Then(Many(StringContent)).ThenSkip(Char('"'))
-            .WithName("string")
-            .Transform(x => string.Join(string.Empty, x));
-
-        private static readonly IParser<(string, string)> Field
-            = String.ThenSkip(OptionalLayout).ThenAdd(String);
-
         private static readonly IParser<IRadiantEntity> Entity
             = Or<IRadiantEntity>(PatchParsingHelper.Patch, BrushParsingHelper.Brush);
 
@@ -45,6 +34,6 @@ namespace RadiantMapToObj.Internal.Parsing
         /// <param name="input">The content of the .map file.</param>
         /// <returns>The parsed radiant map.</returns>
         public static RadiantMap Parse(string input)
-            => Map.Parse(input);
+            => Or(VmfParsingHelper.Vmf, Map).Parse(input);
     }
 }
