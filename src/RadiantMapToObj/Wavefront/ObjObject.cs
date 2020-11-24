@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using RadiantMapToObj.Configuration;
 
 namespace RadiantMapToObj.Wavefront
 {
@@ -16,8 +18,8 @@ namespace RadiantMapToObj.Wavefront
         /// <param name="faces">The faces.</param>
         public ObjObject(IEnumerable<Vector> vertices, IEnumerable<Face> faces)
         {
-            Vertices = vertices;
-            Faces = faces;
+            Vertices = vertices.ToList();
+            Faces = faces.ToList();
             Cleanup();
         }
 
@@ -67,8 +69,13 @@ namespace RadiantMapToObj.Wavefront
         /// Removes all textures that are in the filter.
         /// </summary>
         /// <param name="filter">The filter.</param>
-        public void FilterTextures(string[] filter)
+        public void FilterTextures(Filter filter)
         {
+            if (filter is null)
+            {
+                throw new ArgumentNullException(nameof(filter));
+            }
+
             List<Face> newFaces = new List<Face>();
 
             foreach (Face face in Faces)
@@ -79,7 +86,8 @@ namespace RadiantMapToObj.Wavefront
                 }
             }
 
-            Faces = newFaces.ToArray();
+            Faces = newFaces;
+
             Cleanup();
         }
 
@@ -114,7 +122,7 @@ namespace RadiantMapToObj.Wavefront
                 }
             }
 
-            Vertices = newVertices.ToArray();
+            Vertices = newVertices;
         }
     }
 }

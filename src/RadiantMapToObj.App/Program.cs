@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Radiant;
 using RadiantMapToObj.Wavefront;
 
@@ -14,7 +15,7 @@ namespace RadiantMapToObj.App
     {
         private static double scale = 0.01;
         private static bool autoclose;
-        private static string[] textureFilter = Array.Empty<string>();
+        private static Filter textureFilter = Filters.Empty;
 
         /// <summary>
         /// Defines the entry point of the application.
@@ -68,10 +69,7 @@ namespace RadiantMapToObj.App
             RadiantMap map = RadiantMap.ParseFile(path);
             WavefrontObj obj = map.ToObj();
 
-            if (textureFilter.Length > 0)
-            {
-                obj.FilterTextures(textureFilter);
-            }
+            obj.FilterTextures(textureFilter);
 
             obj.SaveFile(Path.Combine(Path.GetDirectoryName(path) !, Path.GetFileNameWithoutExtension(path)) + ".obj", scale);
 
@@ -113,10 +111,7 @@ namespace RadiantMapToObj.App
                 }
                 else if (type == "filter")
                 {
-                    if (File.Exists(mode))
-                    {
-                        textureFilter = File.ReadAllLines(mode);
-                    }
+                    textureFilter = Filter.Load(mode);
                 }
             }
         }
