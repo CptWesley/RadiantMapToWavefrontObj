@@ -43,7 +43,7 @@ namespace RadiantMapToObj.Internal.Parsing
         /// <summary>
         /// Parses a single double.
         /// </summary>
-        internal static readonly IParser<double> Double = CompiledRegex(@"-?((\.[0-9]+)|(([1-9][0-9]*|0)(\.[0-9]+)?))").WithName("double").Transform(x => double.Parse(x, CultureInfo.InvariantCulture));
+        internal static readonly IParser<double> Double = CompiledRegex(@"-?((\.[0-9]+)|(([1-9][0-9]*|0)(\.[0-9]+)?))(e-?[0-9]+)?").WithName("double").Transform(x => double.Parse(x, CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Parses a vector.
@@ -60,6 +60,11 @@ namespace RadiantMapToObj.Internal.Parsing
             .ThenSkip(String(")"))
             .Transform((x, y, z) => new Vector(x, y, z));
 
+        /// <summary>
+        /// Creates a compiled regex parser.
+        /// </summary>
+        /// <param name="pattern">The pattern.</param>
+        /// <returns>A parser which parses the regex.</returns>
         internal static IParser<string> CompiledRegex(string pattern)
             => new CompiledRegexParser(pattern);
     }
