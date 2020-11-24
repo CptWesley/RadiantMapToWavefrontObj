@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using RadiantMapToObj.Radiant;
@@ -34,11 +33,7 @@ namespace RadiantMapToObj.Internal.Parsing
 
         private static readonly IParser<VmfElement> Element = Or(Lazy(() => Field), Lazy(() => Class));
 
-        private static readonly IParser<VmfElement> Field = CommonParsingHelper.Field.Transform((n, v) =>
-        {
-            Console.WriteLine($"Parsing Field '{n}' : '{v}'");
-            return new VmfField(n, v);
-        });
+        private static readonly IParser<VmfElement> Field = CommonParsingHelper.Field.Transform((n, v) => new VmfField(n, v));
 
         private static readonly IParser<VmfElement> Class
             = CompiledRegex("[a-zA-Z0-9_]+")
@@ -48,11 +43,7 @@ namespace RadiantMapToObj.Internal.Parsing
             .ThenAdd(Many(Element, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String("}"))
-            .Transform((n, c) =>
-            {
-                Console.WriteLine($"Parsing class '{n}' : {c}");
-                return new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField) !, c.Where(x => x is VmfClass).Select(x => x as VmfClass) !);
-            });
+            .Transform((n, c) => new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField) !, c.Where(x => x is VmfClass).Select(x => x as VmfClass) !));
 
         private static readonly IParser<IEnumerable<IRadiantEntity>> Solids
             = OptionalLayout
@@ -71,7 +62,6 @@ namespace RadiantMapToObj.Internal.Parsing
 
         private static IRadiantEntity ToEntity(VmfClass c)
         {
-            Console.WriteLine($"Converting {c.fields.First(x => x.name == "id").value}");
             List<ClippingPlane> planes = new List<ClippingPlane>();
 
             foreach (VmfClass side in c.classes.Where(x => x.name == "side"))
