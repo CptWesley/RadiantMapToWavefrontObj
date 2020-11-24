@@ -30,7 +30,7 @@ namespace RadiantMapToObj.Radiant
         /// <param name="content">The .map content.</param>
         /// <returns>The parsed radiant map.</returns>
         public static RadiantMap Parse(string content)
-            => MapParsingHelper.Parse(content);
+            => MapParser.Parse(content);
 
         /// <summary>
         /// Parses a .map file to our radiant map object.

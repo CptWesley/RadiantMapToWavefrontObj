@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using RadiantMapToObj.Radiant;
 using Warpstone;
@@ -10,7 +11,8 @@ namespace RadiantMapToObj.Internal.Parsing
     /// <summary>
     /// Provides helper methods for parsing maps.
     /// </summary>
-    internal static class MapParsingHelper
+    [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
+    internal static class RadiantMapParsingHelper
     {
         private static readonly IParser<IRadiantEntity> Entity
             = Or<IRadiantEntity>(PatchParsingHelper.Patch, BrushParsingHelper.Brush);
@@ -26,14 +28,9 @@ namespace RadiantMapToObj.Internal.Parsing
 
         private static readonly IParser<IEnumerable<IRadiantEntity>> Entities = Many(EntityContent, OptionalLayout).Transform(x => x.SelectMany(x => x));
 
-        private static readonly IParser<RadiantMap> Map = OptionalLayout.Then(Entities).ThenSkip(OptionalLayout).ThenEnd().Transform(x => new RadiantMap(x));
-
         /// <summary>
-        /// Parses a .map file to our radiant map object.
+        /// Parses a radiant map.
         /// </summary>
-        /// <param name="input">The content of the .map file.</param>
-        /// <returns>The parsed radiant map.</returns>
-        public static RadiantMap Parse(string input)
-            => Or(VmfParsingHelper.Vmf, Map).Parse(input);
+        internal static readonly IParser<RadiantMap> Map = OptionalLayout.Then(Entities).ThenSkip(OptionalLayout).ThenEnd().Transform(x => new RadiantMap(x));
     }
 }
