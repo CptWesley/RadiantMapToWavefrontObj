@@ -11,8 +11,8 @@ namespace RadiantMapToObj.Internal.Parsing
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class CommonParsingHelper
     {
-        private static readonly IParser<string> Whitespace = Regex(@"\s+");
-        private static readonly IParser<string> Comment = Regex(@"//.*");
+        private static readonly IParser<string> Whitespace = CompiledRegex(@"\s+");
+        private static readonly IParser<string> Comment = CompiledRegex(@"//.*");
 
         /// <summary>
         /// Parses mandatory layout.
@@ -24,11 +24,8 @@ namespace RadiantMapToObj.Internal.Parsing
         /// </summary>
         internal static readonly IParser<string> OptionalLayout = Or(Layout, Create(string.Empty));
 
-        private static readonly IParser<string> StringContent
-            = Or(Regex("[^\"\\n\\r]"), String("\\\""));
-
         private static readonly IParser<string> String
-            = Char('"').Then(Many(StringContent)).ThenSkip(Char('"'))
+            = Char('"').Then(CompiledRegex(@"([^""]|\\"")*")).ThenSkip(Char('"'))
             .WithName("string")
             .Transform(x => string.Join(string.Empty, x));
 
@@ -41,12 +38,12 @@ namespace RadiantMapToObj.Internal.Parsing
         /// <summary>
         /// Parses texture names.
         /// </summary>
-        internal static readonly IParser<string> Texture = Regex(@"[\w\/]+");
+        internal static readonly IParser<string> Texture = CompiledRegex(@"[\w\/]+");
 
         /// <summary>
         /// Parses a single double.
         /// </summary>
-        internal static readonly IParser<double> Double = Regex(@"-?((\.[0-9]+)|(([1-9][0-9]*|0)(\.[0-9]+)?))").WithName("double").Transform(x => double.Parse(x, CultureInfo.InvariantCulture));
+        internal static readonly IParser<double> Double = CompiledRegex(@"-?((\.[0-9]+)|(([1-9][0-9]*|0)(\.[0-9]+)?))").WithName("double").Transform(x => double.Parse(x, CultureInfo.InvariantCulture));
 
         /// <summary>
         /// Parses a vector.
@@ -62,5 +59,8 @@ namespace RadiantMapToObj.Internal.Parsing
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
             .Transform((x, y, z) => new Vector(x, y, z));
+
+        internal static IParser<string> CompiledRegex(string pattern)
+            => new CompiledRegexParser(pattern);
     }
 }

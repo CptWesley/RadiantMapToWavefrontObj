@@ -21,7 +21,7 @@ namespace RadiantMapToObj.Internal.Parsing
             .ThenSkip(OptionalLayout)
             .ThenAdd(Texture)
             .ThenSkip(Layout)
-            .ThenSkip(Regex(@".*"))
+            .ThenSkip(CompiledRegex(@".*"))
             .Transform((a, b, c, t) => new ClippingPlane(a, b, c, t));
 
         /// <summary>

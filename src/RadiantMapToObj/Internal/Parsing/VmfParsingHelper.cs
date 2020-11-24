@@ -15,6 +15,14 @@ namespace RadiantMapToObj.Internal.Parsing
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class VmfParsingHelper
     {
+        private abstract record VmfElement;
+
+        [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
+        private record VmfField(string name, string value) : VmfElement;
+
+        [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
+        private record VmfClass(string name, IEnumerable<VmfField> fields, IEnumerable<VmfClass> classes) : VmfElement;
+
         private static readonly IParser<(Vector, Vector, Vector)> Vertices
             = OptionalLayout
             .Then(Vertex)
@@ -24,61 +32,76 @@ namespace RadiantMapToObj.Internal.Parsing
             .ThenAdd(Vertex)
             .ThenSkip(OptionalLayout);
 
-        private static readonly IParser<string> IgnoredContent
-            = String("{")
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(Many(Or(Lazy(() => IgnoredContent), Regex("[^{}]+")), OptionalLayout))
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(String("}"));
+        private static readonly IParser<VmfElement> Element = Or(Lazy(() => Field), Lazy(() => Class));
 
-        private static readonly IParser<string> IgnoredField
-            = Regex("[a-zA-Z0-9_]+")
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(IgnoredContent);
+        private static readonly IParser<VmfElement> Field = CommonParsingHelper.Field.Transform((n, v) =>
+        {
+            Console.WriteLine($"Parsing Field '{n}' : '{v}'");
+            return new VmfField(n, v);
+        });
 
-        private static readonly IParser<ClippingPlane> Side
-            = String("side")
+        private static readonly IParser<VmfElement> Class
+            = CompiledRegex("[a-zA-Z0-9_]+")
             .ThenSkip(OptionalLayout)
             .ThenSkip(String("{"))
             .ThenSkip(OptionalLayout)
-            .Then(Many(Field, OptionalLayout))
+            .ThenAdd(Many(Element, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String("}"))
-            .Transform(x =>
+            .Transform((n, c) =>
             {
-                string planeText = x.First(y => y.Item1 == "plane").Item2;
-                string texture = x.First(y => y.Item1 == "material").Item2;
-                (Vector v1, Vector v2, Vector v3) = Vertices.Parse(planeText);
-                return new ClippingPlane(v1, v2, v3, texture);
+                Console.WriteLine($"Parsing class '{n}' : {c}");
+                return new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField)!, c.Where(x => x is VmfClass).Select(x => x as VmfClass)!);
             });
 
-        private static readonly IParser<IRadiantEntity> Solid
-            = String("solid")
+        private static readonly IParser<IEnumerable<IRadiantEntity>> Solids
+            = OptionalLayout
+            .Then(Many(Element, OptionalLayout))
             .ThenSkip(OptionalLayout)
-            .ThenSkip(String("{"))
-            .ThenSkip(OptionalLayout)
-            .Then(Many(Or(Side, Field.Then(Create<ClippingPlane>(null!)), IgnoredField.Then(Create<ClippingPlane>(null!))), OptionalLayout).Transform(x => x.Where(x => x != null)))
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(String("}"))
-            .Transform(x => new Brush(x));
-
-        private static readonly IParser<IEnumerable<IRadiantEntity>> World
-            = String("world")
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(String("{"))
-            .ThenSkip(OptionalLayout)
-            .Then(Many(Or(Solid, Field.Then(Create<IRadiantEntity>(null!)), IgnoredField.Then(Create<IRadiantEntity>(null!))), OptionalLayout).Transform(x => x.Where(x => x != null)))
-            .ThenSkip(OptionalLayout)
-            .ThenSkip(String("}"));
+            .Transform(GetSolids)
+            .Transform(x => x.Select(ToEntity));
 
         /// <summary>
         /// Parses a .vmf file.
         /// </summary>
         internal static readonly IParser<RadiantMap> Vmf
-            = OptionalLayout
-            .Then(Many(Or(World, IgnoredField.Then(Create(Array.Empty<IRadiantEntity>()))), OptionalLayout))
-            .ThenSkip(OptionalLayout)
-            .Transform(x => new RadiantMap(x.SelectMany(x => x)))
+            = Solids
+            .Transform(x => new RadiantMap(x))
             .ThenEnd();
+
+        private static IRadiantEntity ToEntity(VmfClass c)
+        {
+            Console.WriteLine($"Converting {c.fields.First(x => x.name == "id").value}");
+            List<ClippingPlane> planes = new List<ClippingPlane>();
+
+            foreach (VmfClass side in c.classes.Where(x => x.name == "side"))
+            {
+                string texture = side.fields.First(x => x.name == "material").value;
+                string planeText = side.fields.First(x => x.name == "plane").value;
+                (Vector v1, Vector v2, Vector v3) = Vertices.Parse(planeText);
+                planes.Add(new ClippingPlane(v1, v2, v3, texture));
+            }
+
+            return new Brush(planes);
+        }
+
+        private static IEnumerable<VmfClass> GetSolids(IEnumerable<VmfElement> elements)
+        {
+            IEnumerable<VmfClass> classes = elements.Where(x => x is VmfClass).Select(x => x as VmfClass) !;
+            IEnumerable<VmfClass> result = classes.Where(x => x.name == "solid") !;
+
+            foreach (VmfClass c in result)
+            {
+                yield return c;
+            }
+
+            foreach (VmfClass c in classes)
+            {
+                foreach (VmfClass r in GetSolids(c.classes))
+                {
+                    yield return r;
+                }
+            }
+        }
     }
 }
