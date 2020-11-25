@@ -13,17 +13,16 @@
         /// <summary>
         /// Represents a filter for the hammer editor tools.
         /// </summary>
-        public static readonly Filter Hammer = new Filter(new string[]
-        {
-            "TOOLS/*",
-        });
+        public static readonly Filter Hammer = new Filter(new string[] { "TOOLS/*" });
 
         /// <summary>
         /// Represents a filter for the radiant editor utility textures.
         /// </summary>
-        public static readonly Filter Radiant = new Filter(new string[]
-        {
-            "common/*",
-        });
+        public static readonly Filter Radiant = new Filter(new string[] { "common/*" });
+
+        /// <summary>
+        /// Represents a filter for Enemy Territory maps.
+        /// </summary>
+        public static readonly Filter EnemyTerritory = new Filter(new string[] { "skies/*" }, new Filter[] { Radiant });
     }
 }
