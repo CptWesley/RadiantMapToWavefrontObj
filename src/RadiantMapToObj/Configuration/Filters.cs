@@ -17,5 +17,13 @@
         {
             "TOOLS/*",
         });
+
+        /// <summary>
+        /// Represents a filter for the radiant editor utility textures.
+        /// </summary>
+        public static readonly Filter Radiant = new Filter(new string[]
+        {
+            "common/*",
+        });
     }
 }

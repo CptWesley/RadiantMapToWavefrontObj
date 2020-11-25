@@ -69,6 +69,7 @@ namespace RadiantMapToObj.Configuration
 
             return fileName?.ToUpperInvariant() switch
             {
+                "RADIANT" => Filters.Radiant,
                 "HAMMER" => Filters.Hammer,
                 _ => throw new ArgumentException($"Could not find filter for '{fileName}'.", nameof(fileName)),
             };
