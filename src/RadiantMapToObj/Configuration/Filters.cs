@@ -23,6 +23,6 @@
         /// <summary>
         /// Represents a filter for Enemy Territory maps.
         /// </summary>
-        public static readonly Filter EnemyTerritory = new Filter(new string[] { "skies/*" }, new Filter[] { Radiant });
+        public static readonly Filter EnemyTerritory = new Filter(new string[] { "skies/*" }, new Filter[] { Radiant }, new[] { "common/terrain" });
     }
 }

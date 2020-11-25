@@ -15,8 +15,19 @@ namespace RadiantMapToObj.Configuration
         /// </summary>
         /// <param name="textures">The filtered textures.</param>
         /// <param name="includes">The included filters.</param>
+        /// <param name="ignores">The list of textures that are not filtered.</param>
+        public Filter(IEnumerable<string> textures, IEnumerable<Filter> includes, IEnumerable<string> ignores)
+            => (Textures, Includes, Ignores) = (textures, includes, ignores);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Filter"/> class.
+        /// </summary>
+        /// <param name="textures">The filtered textures.</param>
+        /// <param name="includes">The included filters.</param>
         public Filter(IEnumerable<string> textures, IEnumerable<Filter> includes)
-            => (Textures, Includes) = (textures, includes);
+            : this(textures, includes, Array.Empty<string>())
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Filter"/> class.
@@ -55,6 +66,11 @@ namespace RadiantMapToObj.Configuration
         public IEnumerable<Filter> Includes { get; }
 
         /// <summary>
+        /// Gets the textures that are not filtered out.
+        /// </summary>
+        public IEnumerable<string> Ignores { get; }
+
+        /// <summary>
         /// Tries to load a specific filter from the given fileName.
         /// If the file does not exist, try to load a pre-implemented filter.
         /// </summary>
@@ -83,6 +99,11 @@ namespace RadiantMapToObj.Configuration
         /// <returns><c>true</c> if this filter contains the given texture; otherwise, <c>false</c>.</returns>
         public bool Contains(string texture)
         {
+            if (IsIgnored(texture))
+            {
+                return false;
+            }
+
             foreach (string pattern in Textures)
             {
                 if (Matches(pattern, texture))
@@ -106,6 +127,27 @@ namespace RadiantMapToObj.Configuration
         {
             string regexPattern = Regex.Escape(pattern).Replace("/", "\\/").Replace("\\*", ".*");
             return Regex.IsMatch(texture, regexPattern);
+        }
+
+        private bool IsIgnored(string texture)
+        {
+            foreach (string pattern in Ignores)
+            {
+                if (Matches(pattern, texture))
+                {
+                    return true;
+                }
+            }
+
+            foreach (Filter include in Includes)
+            {
+                if (include.IsIgnored(texture))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
