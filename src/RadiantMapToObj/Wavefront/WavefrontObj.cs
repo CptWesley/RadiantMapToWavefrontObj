@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using RadiantMapToObj.Configuration;
 
 namespace RadiantMapToObj.Wavefront
@@ -52,7 +53,9 @@ namespace RadiantMapToObj.Wavefront
         /// <returns>The object represented in .obj file content format.</returns>
         public string ToCode(double scale)
         {
-            string res = "# Exported using Wesley Baartman's RadiantMapToWavefrontObj software.\n\n";
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("# Exported using Wesley Baartman's RadiantMapToObj software.");
+            sb.AppendLine("# https://github.com/CptWesley/RadiantMapToWavefrontObj");
 
             int faceOffset = 0;
 
@@ -60,11 +63,11 @@ namespace RadiantMapToObj.Wavefront
             int i = 0;
             foreach (ObjObject obj in Objects)
             {
-                res += obj.ToCode($"Object_{i++}", scale, faceOffset) + "\n";
+                sb.AppendLine(obj.ToCode($"Object_{i++}", scale, faceOffset));
                 faceOffset += obj.Vertices.Count();
             }
 
-            return res;
+            return sb.ToString();
         }
 
         /// <summary>

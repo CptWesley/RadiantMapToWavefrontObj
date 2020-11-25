@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using RadiantMapToObj.Configuration;
 
 namespace RadiantMapToObj.Wavefront
@@ -42,7 +43,8 @@ namespace RadiantMapToObj.Wavefront
         /// <returns>The .obj file content.</returns>
         public string ToCode(string name, double scale, int faceOffset)
         {
-            string res = "o " + name + "\n";
+            StringBuilder sb = new StringBuilder();
+            sb.Append("o ").AppendLine(name);
 
             // Write vertices.
             foreach (Vector vertex in Vertices)
@@ -50,7 +52,7 @@ namespace RadiantMapToObj.Wavefront
                 string x = (-vertex.X * scale).ToString("0.000000", CultureInfo.InvariantCulture);
                 string y = (-vertex.Z * scale).ToString("0.000000", CultureInfo.InvariantCulture);
                 string z = (vertex.Y * scale).ToString("0.000000", CultureInfo.InvariantCulture);
-                res += "v " + x + " " + y + " " + z + "\n";
+                sb.Append("v ").Append(x).Append(' ').Append(y).Append(' ').AppendLine(z);
             }
 
             // Write faces.
@@ -59,10 +61,10 @@ namespace RadiantMapToObj.Wavefront
                 int v1 = Vertices.IndexOf(face.A) + 1 + faceOffset;
                 int v2 = Vertices.IndexOf(face.B) + 1 + faceOffset;
                 int v3 = Vertices.IndexOf(face.C) + 1 + faceOffset;
-                res += "f " + v1 + " " + v2 + " " + v3 + "\n";
+                sb.Append("f ").Append(v1).Append(' ').Append(v2).Append(' ').Append(v3).AppendLine();
             }
 
-            return res;
+            return sb.ToString();
         }
 
         /// <summary>
