@@ -24,5 +24,10 @@
         /// Represents a filter for Enemy Territory maps.
         /// </summary>
         public static readonly Filter EnemyTerritory = new Filter(new string[] { "skies/*" }, new Filter[] { Radiant }, new[] { "common/terrain" });
+
+        /// <summary>
+        /// Represents a filter for CallOfDuty maps.
+        /// </summary>
+        public static readonly Filter CallOfDuty = new Filter(new string[] { "sky/*" }, new Filter[] { Radiant });
     }
 }

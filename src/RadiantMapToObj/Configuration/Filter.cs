@@ -85,6 +85,7 @@ namespace RadiantMapToObj.Configuration
 
             return fileName?.ToUpperInvariant() switch
             {
+                "COD" => Filters.CallOfDuty,
                 "ET" => Filters.EnemyTerritory,
                 "RADIANT" => Filters.Radiant,
                 "HAMMER" => Filters.Hammer,

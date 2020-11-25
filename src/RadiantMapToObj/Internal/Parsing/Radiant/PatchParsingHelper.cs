@@ -14,7 +14,7 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class PatchParsingHelper
     {
-        private static readonly IParser<Vector> VertexUv
+        private static readonly IParser<Vector> VertexUvPatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
             .Then(CommonParsingHelper.Double)
@@ -30,23 +30,23 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(String(")"))
             .Transform((x, y, z, u, v) => -new Vector(x, y, z));
 
-        private static readonly IParser<Vector[]> VertexRow
+        private static readonly IParser<Vector[]> VertexRowPatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(Many(VertexUv, OptionalLayout))
+            .Then(Many(VertexUvPatchDef2, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<Vector[][]> VertexGrid
+        private static readonly IParser<Vector[][]> VertexGridPatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(Many(VertexRow, OptionalLayout))
+            .Then(Many(VertexRowPatchDef2, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<(double, double, double, double, double)> GridSize
+        private static readonly IParser<(double, double, double, double, double)> GridSizePatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
             .Then(CommonParsingHelper.Double)
@@ -70,9 +70,88 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(OptionalLayout)
             .Then(Texture)
             .ThenSkip(OptionalLayout)
-            .ThenSkip(GridSize)
+            .ThenSkip(GridSizePatchDef2)
             .ThenSkip(OptionalLayout)
-            .ThenAdd(VertexGrid)
+            .ThenAdd(VertexGridPatchDef2)
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String("}"))
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String("}"))
+            .Transform((t, g) => new Patch(g));
+
+        private static readonly IParser<Vector> VertexUvPatchDef3
+            = String("(")
+            .ThenSkip(OptionalLayout)
+            .Then(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String(")"))
+            .Transform((a, q4, q5) => -new Vector(a.Item1, a.Item2, a.Item3));
+
+        private static readonly IParser<Vector[]> VertexRowPatchDef3
+            = String("(")
+            .ThenSkip(OptionalLayout)
+            .Then(Many(VertexUvPatchDef3, OptionalLayout))
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String(")"))
+            .Transform(x => x.ToArray());
+
+        private static readonly IParser<Vector[][]> VertexGridPatchDef3
+            = String("(")
+            .ThenSkip(OptionalLayout)
+            .Then(Many(VertexRowPatchDef3, OptionalLayout))
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String(")"))
+            .Transform(x => x.ToArray());
+
+        private static readonly IParser<(double, double, double, double, double, double, double)> GridSizePatchDef3
+            = String("(")
+            .ThenSkip(OptionalLayout)
+            .Then(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(Layout)
+            .ThenAdd(CommonParsingHelper.Double)
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String(")"));
+
+        private static readonly IParser<Patch> PatchDef3
+            = String("{")
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(Or(String("patchTerrainDef3"), String("patchDef5")))
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(String("{"))
+            .ThenSkip(OptionalLayout)
+            .Then(Texture)
+            .ThenSkip(OptionalLayout)
+            .ThenSkip(GridSizePatchDef3)
+            .ThenSkip(OptionalLayout)
+            .ThenAdd(VertexGridPatchDef3)
             .ThenSkip(OptionalLayout)
             .ThenSkip(String("}"))
             .ThenSkip(OptionalLayout)
@@ -83,6 +162,6 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
         /// Parses a patch.
         /// </summary>
         internal static readonly IParser<Patch> Patch
-            = PatchDef2;
+            = Or(PatchDef3, PatchDef2);
     }
 }
