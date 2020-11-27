@@ -23,6 +23,6 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Warpstone" Version="1.0.7" />
+    <PackageReference Include="Warpstone" Version="1.0.7.1" />
   </ItemGroup>
 </Project>

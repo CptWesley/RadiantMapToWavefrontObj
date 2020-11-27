@@ -24,12 +24,9 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
 
         private static readonly IParser<(Vector, Vector, Vector)> Vertices
             = OptionalLayout
-            .Then(Vertex)
+            .Then(Multiple(Vertex, OptionalLayout, 3))
             .ThenSkip(OptionalLayout)
-            .ThenAdd(Vertex)
-            .ThenSkip(OptionalLayout)
-            .ThenAdd(Vertex)
-            .ThenSkip(OptionalLayout);
+            .Transform(x => (x[0], x[1], x[2]));
 
         private static readonly IParser<VmfElement> Element = Or(Lazy(() => Field), Lazy(() => Class));
 

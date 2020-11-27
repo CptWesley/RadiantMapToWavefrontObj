@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using RadiantMapToObj.Radiant;
 using Warpstone;
@@ -17,18 +18,10 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
         private static readonly IParser<Vector> VertexUvPatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
+            .Then(Multiple(Double, Layout, 5))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
-            .Transform((x, y, z, u, v) => -new Vector(x, y, z));
+            .Transform(x => -new Vector(x[0], x[1], x[2]));
 
         private static readonly IParser<Vector[]> VertexRowPatchDef2
             = String("(")
@@ -46,18 +39,10 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<(double, double, double, double, double)> GridSizePatchDef2
+        private static readonly IParser<IList<double>> GridSizePatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
+            .Then(Multiple(Double, Layout, 5))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"));
 
@@ -82,28 +67,10 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
         private static readonly IParser<Vector> VertexUvPatchDef3
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
+            .Then(Multiple(Double, Layout, 10))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
-            .Transform((a, q4, q5) => -new Vector(a.Item1, a.Item2, a.Item3));
+            .Transform(x => -new Vector(x[0], x[1], x[2]));
 
         private static readonly IParser<Vector[]> VertexRowPatchDef3
             = String("(")
@@ -121,22 +88,10 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<(double, double, double, double, double, double, double)> GridSizePatchDef3
+        private static readonly IParser<IList<double>> GridSizePatchDef3
             = String("(")
             .ThenSkip(OptionalLayout)
-            .Then(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
-            .ThenSkip(Layout)
-            .ThenAdd(CommonParsingHelper.Double)
+            .Then(Multiple(Double, Layout, 7))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"));
 
