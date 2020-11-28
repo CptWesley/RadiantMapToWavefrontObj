@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using RadiantMapToObj.Configuration;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.App
@@ -66,7 +66,7 @@ namespace RadiantMapToObj.App
 
             DateTime startTime = DateTime.Now;
 
-            RadiantMap map = RadiantMap.ParseFile(path);
+            QuakeMap map = QuakeMap.ParseFile(path);
             WavefrontObj obj = map.ToObj();
 
             obj.FilterTextures(textureFilter);

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake.Radiant;
 using Warpstone;
 using Warpstone.Parsers;
 using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;

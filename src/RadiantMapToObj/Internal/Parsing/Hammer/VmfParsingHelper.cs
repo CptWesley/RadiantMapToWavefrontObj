@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake;
 using Warpstone;
 using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;
 using static Warpstone.Parsers.BasicParsers;
@@ -17,10 +17,10 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
         private abstract record VmfElement;
 
         [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        private record VmfField(string name, string value) : VmfElement;
+        private record VmfField(string Name, string Value) : VmfElement;
 
         [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        private record VmfClass(string name, IEnumerable<VmfField> fields, IEnumerable<VmfClass> classes) : VmfElement;
+        private record VmfClass(string Name, IEnumerable<VmfField> Fields, IEnumerable<VmfClass> Classes) : VmfElement;
 
         private static readonly IParser<(Vector, Vector, Vector)> Vertices
             = OptionalLayout
@@ -42,7 +42,7 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
             .ThenSkip(String("}"))
             .Transform((n, c) => new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField) !, c.Where(x => x is VmfClass).Select(x => x as VmfClass) !));
 
-        private static readonly IParser<IEnumerable<IRadiantEntity>> Solids
+        private static readonly IParser<IEnumerable<IQuakeEntity>> Solids
             = OptionalLayout
             .Then(Many(Element, OptionalLayout))
             .ThenSkip(OptionalLayout)
@@ -52,19 +52,19 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
         /// <summary>
         /// Parses a .vmf file.
         /// </summary>
-        internal static readonly IParser<RadiantMap> Vmf
+        internal static readonly IParser<QuakeMap> Vmf
             = Solids
-            .Transform(x => new RadiantMap(x))
+            .Transform(x => new QuakeMap(x))
             .ThenEnd();
 
-        private static IRadiantEntity ToEntity(VmfClass c)
+        private static IQuakeEntity ToEntity(VmfClass c)
         {
             List<ClippingPlane> planes = new List<ClippingPlane>();
 
-            foreach (VmfClass side in c.classes.Where(x => x.name == "side"))
+            foreach (VmfClass side in c.Classes.Where(x => x.Name == "side"))
             {
-                string texture = side.fields.First(x => x.name == "material").value;
-                string planeText = side.fields.First(x => x.name == "plane").value;
+                string texture = side.Fields.First(x => x.Name == "material").Value;
+                string planeText = side.Fields.First(x => x.Name == "plane").Value;
                 (Vector v1, Vector v2, Vector v3) = Vertices.Parse(planeText);
                 planes.Add(new ClippingPlane(v1, v2, v3, texture));
             }
@@ -75,7 +75,7 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
         private static IEnumerable<VmfClass> GetSolids(IEnumerable<VmfElement> elements)
         {
             IEnumerable<VmfClass> classes = elements.Where(x => x is VmfClass).Select(x => x as VmfClass) !;
-            IEnumerable<VmfClass> result = classes.Where(x => x.name == "solid") !;
+            IEnumerable<VmfClass> result = classes.Where(x => x.Name == "solid") !;
 
             foreach (VmfClass c in result)
             {
@@ -84,7 +84,7 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
 
             foreach (VmfClass c in classes)
             {
-                foreach (VmfClass r in GetSolids(c.classes))
+                foreach (VmfClass r in GetSolids(c.Classes))
                 {
                     yield return r;
                 }

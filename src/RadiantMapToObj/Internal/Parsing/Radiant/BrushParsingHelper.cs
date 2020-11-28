@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake;
 using Warpstone;
 using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;
 using static Warpstone.Parsers.BasicParsers;
