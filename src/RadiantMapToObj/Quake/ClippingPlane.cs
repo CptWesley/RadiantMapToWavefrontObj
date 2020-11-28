@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RadiantMapToObj.Radiant
+namespace RadiantMapToObj.Quake
 {
     /// <summary>
     /// Class for ClippingPlane.

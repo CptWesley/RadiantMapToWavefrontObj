@@ -5,31 +5,31 @@ using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Internal.Parsing;
 using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Radiant
+namespace RadiantMapToObj.Quake
 {
     /// <summary>
     /// Represents a radiant map.
     /// </summary>
-    public class RadiantMap
+    public class QuakeMap
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RadiantMap"/> class.
+        /// Initializes a new instance of the <see cref="QuakeMap"/> class.
         /// </summary>
         /// <param name="entities">The entities.</param>
-        public RadiantMap(IEnumerable<IRadiantEntity> entities)
+        public QuakeMap(IEnumerable<IQuakeEntity> entities)
             => Entities = entities;
 
         /// <summary>
         /// Gets the entities.
         /// </summary>
-        public IEnumerable<IRadiantEntity> Entities { get; }
+        public IEnumerable<IQuakeEntity> Entities { get; }
 
         /// <summary>
         /// Parses .map file formatted content to a map.
         /// </summary>
         /// <param name="content">The .map content.</param>
         /// <returns>The parsed radiant map.</returns>
-        public static RadiantMap Parse(string content)
+        public static QuakeMap Parse(string content)
             => MapParser.Parse(content);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace RadiantMapToObj.Radiant
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>The parsed radiant map.</returns>
-        public static RadiantMap ParseFile(string path)
+        public static QuakeMap ParseFile(string path)
             => Parse(File.ReadAllText(path));
 
         /// <inheritdoc/>
@@ -46,7 +46,7 @@ namespace RadiantMapToObj.Radiant
             StringBuilder sb = new StringBuilder();
 
             int i = 0;
-            foreach (IRadiantEntity entity in Entities)
+            foreach (IQuakeEntity entity in Entities)
             {
                 sb.AppendLine($"Entity {i++}");
                 sb.AppendLine(entity.ToString());

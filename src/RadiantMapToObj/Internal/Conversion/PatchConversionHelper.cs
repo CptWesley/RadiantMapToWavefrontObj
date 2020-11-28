@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake.Radiant;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Internal.Conversion

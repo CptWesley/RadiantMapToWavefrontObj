@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Internal.Conversion
@@ -14,7 +14,7 @@ namespace RadiantMapToObj.Internal.Conversion
         /// </summary>
         /// <param name="map">The radiant map to convert.</param>
         /// <returns>A wavefront object created from a given radiant map.</returns>
-        internal static WavefrontObj Convert(RadiantMap map)
+        internal static WavefrontObj Convert(QuakeMap map)
             => new WavefrontObj(map.Entities.Select(x => x.ToObjObject()));
     }
 }

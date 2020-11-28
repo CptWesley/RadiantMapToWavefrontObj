@@ -3,12 +3,12 @@ using System.Linq;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Radiant
+namespace RadiantMapToObj.Quake.Radiant
 {
     /// <summary>
     /// Represents a radiant patch.
     /// </summary>
-    public class Patch : IRadiantEntity
+    public class Patch : IQuakeEntity
     {
         private Vector[][] grid;
 

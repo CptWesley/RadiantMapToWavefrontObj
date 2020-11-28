@@ -2,12 +2,12 @@
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Radiant
+namespace RadiantMapToObj.Quake
 {
     /// <summary>
     /// Class for Brush.
     /// </summary>
-    public class Brush : IRadiantEntity
+    public class Brush : IQuakeEntity
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Brush"/> class.

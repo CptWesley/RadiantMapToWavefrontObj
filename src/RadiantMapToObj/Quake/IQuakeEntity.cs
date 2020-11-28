@@ -1,11 +1,11 @@
 ﻿using RadiantMapToObj.Wavefront;
 
-namespace RadiantMapToObj.Radiant
+namespace RadiantMapToObj.Quake
 {
     /// <summary>
     /// Interface for radiant entities.
     /// </summary>
-    public interface IRadiantEntity
+    public interface IQuakeEntity
     {
         /// <summary>
         /// Converts this entity into an <see cref="ObjObject"/> instance.

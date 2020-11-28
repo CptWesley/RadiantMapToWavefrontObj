@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RadiantMapToObj.Radiant;
+using RadiantMapToObj.Quake;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Internal.Conversion
