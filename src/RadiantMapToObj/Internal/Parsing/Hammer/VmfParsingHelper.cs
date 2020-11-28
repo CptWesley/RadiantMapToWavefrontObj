@@ -40,7 +40,7 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
             .ThenAdd(Many(Element, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String("}"))
-            .Transform((n, c) => new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField) !, c.Where(x => x is VmfClass).Select(x => x as VmfClass) !));
+            .Transform((n, c) => new VmfClass(n, c.Where(x => x is VmfField).Select(x => x as VmfField)!, c.Where(x => x is VmfClass).Select(x => x as VmfClass)!));
 
         private static readonly IParser<IEnumerable<IQuakeEntity>> Solids
             = OptionalLayout
@@ -74,8 +74,8 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
 
         private static IEnumerable<VmfClass> GetSolids(IEnumerable<VmfElement> elements)
         {
-            IEnumerable<VmfClass> classes = elements.Where(x => x is VmfClass).Select(x => x as VmfClass) !;
-            IEnumerable<VmfClass> result = classes.Where(x => x.Name == "solid") !;
+            IEnumerable<VmfClass> classes = elements.Where(x => x is VmfClass).Select(x => x as VmfClass)!;
+            IEnumerable<VmfClass> result = classes.Where(x => x.Name == "solid")!;
 
             foreach (VmfClass c in result)
             {
