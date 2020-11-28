@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using RadiantMapToObj.Quake;
+using RadiantMapToObj.Quake.Hammer;
 using Warpstone;
 using static RadiantMapToObj.Internal.Parsing.CommonParsingHelper;
 using static Warpstone.Parsers.BasicParsers;
@@ -14,13 +15,13 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class VmfParsingHelper
     {
-        private abstract record VmfElement;
+        internal abstract record VmfElement;
 
         [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        private record VmfField(string Name, string Value) : VmfElement;
+        internal record VmfField(string Name, string Value) : VmfElement;
 
         [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        private record VmfClass(string Name, IEnumerable<VmfField> Fields, IEnumerable<VmfClass> Classes) : VmfElement;
+        internal record VmfClass(string Name, IEnumerable<VmfField> Fields, IEnumerable<VmfClass> Classes) : VmfElement;
 
         private static readonly IParser<(Vector, Vector, Vector)> Vertices
             = OptionalLayout
@@ -66,7 +67,16 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
                 string texture = side.Fields.First(x => x.Name == "material").Value;
                 string planeText = side.Fields.First(x => x.Name == "plane").Value;
                 (Vector v1, Vector v2, Vector v3) = Vertices.Parse(planeText);
-                planes.Add(new ClippingPlane(v1, v2, v3, texture));
+
+                VmfClass? dispInfo = side.Classes.FirstOrDefault(x => x.Name == "dispinfo");
+                if (dispInfo != null)
+                {
+                    planes.Add(new DisplacementClippingPlane(v1, v2, v3, texture, DisplacementParsingHelper.ToDispInfo(dispInfo)));
+                }
+                else
+                {
+                    planes.Add(new ClippingPlane(v1, v2, v3, texture));
+                }
             }
 
             return new Brush(planes);

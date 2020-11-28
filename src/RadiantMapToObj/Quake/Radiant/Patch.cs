@@ -13,8 +13,8 @@ namespace RadiantMapToObj.Quake.Radiant
         /// Initializes a new instance of the <see cref="Patch"/> class.
         /// </summary>
         /// <param name="grid">The grid.</param>
-        public Patch(Vector[][] grid)
-            => Grid = new Grid<Vector>(grid);
+        public Patch(Grid<Vector> grid)
+            => Grid = grid;
 
         /// <summary>
         /// Gets the grid.

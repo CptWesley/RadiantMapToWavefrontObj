@@ -31,13 +31,13 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<Vector[][]> VertexGridPatchDef2
+        private static readonly IParser<Grid<Vector>> VertexGridPatchDef2
             = String("(")
             .ThenSkip(OptionalLayout)
             .Then(Many(VertexRowPatchDef2, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
-            .Transform(x => x.ToArray());
+            .Transform(x => new Grid<Vector>(x.ToArray()));
 
         private static readonly IParser<IList<double>> GridSizePatchDef2
             = String("(")
@@ -80,13 +80,13 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
             .ThenSkip(String(")"))
             .Transform(x => x.ToArray());
 
-        private static readonly IParser<Vector[][]> VertexGridPatchDef3
+        private static readonly IParser<Grid<Vector>> VertexGridPatchDef3
             = String("(")
             .ThenSkip(OptionalLayout)
             .Then(Many(VertexRowPatchDef3, OptionalLayout))
             .ThenSkip(OptionalLayout)
             .ThenSkip(String(")"))
-            .Transform(x => x.ToArray());
+            .Transform(x => new Grid<Vector>(x.ToArray()));
 
         private static readonly IParser<IList<double>> GridSizePatchDef3
             = String("(")
