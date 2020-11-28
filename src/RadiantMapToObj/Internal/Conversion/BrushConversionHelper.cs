@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using RadiantMapToObj.Quake;
+using RadiantMapToObj.Quake.Hammer;
 using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Internal.Conversion
@@ -19,6 +20,13 @@ namespace RadiantMapToObj.Internal.Conversion
         public static ObjObject Convert(Brush brush)
         {
             IEnumerable<Vector> vertices = FindIntersections(brush.ClippingPlanes);
+
+            DisplacementClippingPlane? displacement = brush.ClippingPlanes.FirstOrDefault(x => x is DisplacementClippingPlane) as DisplacementClippingPlane;
+            if (displacement != null)
+            {
+                return DisplacementConversionHelper.Convert(displacement, vertices);
+            }
+
             IEnumerable<Face> faces = CreateFaces(vertices, brush.ClippingPlanes);
             return new ObjObject(vertices, faces);
         }
