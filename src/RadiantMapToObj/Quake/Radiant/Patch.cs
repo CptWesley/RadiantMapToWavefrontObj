@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Wavefront;
 
@@ -10,29 +9,32 @@ namespace RadiantMapToObj.Quake.Radiant
     /// </summary>
     public class Patch : IQuakeEntity
     {
-        private Vector[][] grid;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Patch"/> class.
         /// </summary>
         /// <param name="grid">The grid.</param>
         public Patch(Vector[][] grid)
-            => this.grid = grid;
+            => Grid = new Grid<Vector>(grid);
+
+        /// <summary>
+        /// Gets the grid.
+        /// </summary>
+        public Grid<Vector> Grid { get; }
 
         /// <summary>
         /// Gets the width.
         /// </summary>
-        public int Width => grid[0].Length;
+        public int Width => Grid.Width;
 
         /// <summary>
         /// Gets the height.
         /// </summary>
-        public int Height => grid.Length;
+        public int Height => Grid.Height;
 
         /// <summary>
         /// Gets all vertices.
         /// </summary>
-        public IEnumerable<Vector> Vertices => grid.SelectMany(x => x);
+        public IEnumerable<Vector> Vertices => Grid.Elements;
 
         /// <summary>
         /// Gets the <see cref="Vector"/> with at the specified x and y coordinates.
@@ -40,7 +42,7 @@ namespace RadiantMapToObj.Quake.Radiant
         /// <param name="x">The x coordinate.</param>
         /// <param name="y">The y coordinate.</param>
         /// <returns>The vertex at the given coordinate.</returns>
-        public Vector this[int x, int y] => grid[y][x];
+        public Vector this[int x, int y] => Grid[y, x];
 
         /// <inheritdoc/>
         public ObjObject ToObjObject()
