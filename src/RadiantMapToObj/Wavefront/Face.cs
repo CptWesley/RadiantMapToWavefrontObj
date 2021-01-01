@@ -96,12 +96,12 @@ namespace RadiantMapToObj.Wavefront
         /// Gets the edges.
         /// </summary>
         /// <returns> Edges of the face.</returns>
-        public Edge[] GetEdges()
+        public IEnumerable<Edge> GetEdges()
         {
-            Edge[] edges = new Edge[3];
-            edges[0] = new Edge(A, B);
-            edges[1] = new Edge(B, C);
-            edges[2] = new Edge(C, A);
+            HashSet<Edge> edges = new HashSet<Edge>();
+            edges.Add(new Edge(A, B));
+            edges.Add(new Edge(B, C));
+            edges.Add(new Edge(C, A));
             return edges;
         }
 
