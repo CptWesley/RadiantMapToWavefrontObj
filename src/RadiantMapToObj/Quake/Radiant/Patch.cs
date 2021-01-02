@@ -42,7 +42,7 @@ namespace RadiantMapToObj.Quake.Radiant
         /// <param name="x">The x coordinate.</param>
         /// <param name="y">The y coordinate.</param>
         /// <returns>The vertex at the given coordinate.</returns>
-        public Vector this[int x, int y] => Grid[y, x];
+        public Vector this[int x, int y] => Grid[x, y];
 
         /// <inheritdoc/>
         public ObjObject ToObjObject()
