@@ -32,7 +32,7 @@ namespace RadiantMapToObj.Internal.Conversion
             Grid<Vector> grid = CreateGrid(verticesInPlane, dispInfo.Dimensions);
             grid = ApplyOffsets(grid, dispInfo.Offsets);
             grid = ApplyDistances(grid, dispInfo.Normals, dispInfo.Elevation, dispInfo.Distances);
-            return ObjFromGrid(grid, displacementPlane.Texture);
+            return ObjFromGrid(grid, displacementPlane.Texture.Name);
         }
 
         private static Grid<Vector> CreateGrid(Vector[] vertices, int dimensions)

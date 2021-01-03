@@ -12,6 +12,20 @@ namespace RadiantMapToObj.Internal.Parsing.Radiant
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class BrushParsingHelper
     {
+        private static readonly IParser<PlaneTexture> Texture
+            = TextureName
+            .ThenSkip(Layout)
+            .ThenAdd(Double)
+            .ThenSkip(Layout)
+            .ThenAdd(Double)
+            .ThenSkip(Layout)
+            .ThenAdd(Double)
+            .ThenSkip(Layout)
+            .ThenAdd(Double)
+            .ThenSkip(Layout)
+            .ThenAdd(Double)
+            .Transform((t, x, y, r, xs, ys) => new PlaneTexture(t, x, y, r, xs, ys));
+
         private static readonly IParser<ClippingPlane> ClippingPlane
             = Vertex
             .ThenSkip(OptionalLayout)

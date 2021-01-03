@@ -93,7 +93,7 @@ namespace RadiantMapToObj.Internal.Conversion
             {
                 IEnumerable<Vector> verts = plane.FindVerticesInPlane(vertices);
 
-                foreach (Face face in BowyerWatson(verts, plane.Texture))
+                foreach (Face face in BowyerWatson(verts, plane.Texture.Name))
                 {
                     Face fixedFace = FixNormal(face, plane.Normal);
                     faces.Add(fixedFace);
