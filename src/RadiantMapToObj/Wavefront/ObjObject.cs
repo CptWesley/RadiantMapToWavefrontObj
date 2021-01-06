@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using RadiantMapToObj.Configuration;
+using RadiantMapToObj.Internal;
 
 namespace RadiantMapToObj.Wavefront
 {
