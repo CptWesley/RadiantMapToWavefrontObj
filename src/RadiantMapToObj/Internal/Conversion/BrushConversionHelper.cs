@@ -353,7 +353,6 @@ namespace RadiantMapToObj.Internal.Conversion
 
             Vector[] vectors = face.Vertices.ToArray();
 
-            Console.WriteLine("========================");
             Vertex v1 = CreateTexturedVertex(plane, vectors[0], width, height);
             Vertex v2 = CreateTexturedVertex(plane, vectors[1], width, height);
             Vertex v3 = CreateTexturedVertex(plane, vectors[2], width, height);
@@ -371,13 +370,11 @@ namespace RadiantMapToObj.Internal.Conversion
             double xy = Math.Abs(xyr);
 
             double rad = Math.PI / 180 * -plane.Texture.Rotation;
-            Console.WriteLine($"Rad: {rad}");
-            double crot = Math.Round(Math.Cos(rad), 6);
-            double srot = Math.Round(Math.Sin(rad), 6);
-            Console.WriteLine($"sin: {srot} cos: {crot}");
+            double crot = Math.Cos(rad);
+            double srot = Math.Sin(rad);
 
-            //Console.WriteLine(crot);
-            //Console.WriteLine(srot);
+            double xOffset = plane.Texture.OffsetX;
+            double yOffset = plane.Texture.OffsetY;
 
             double x;
             double y;
@@ -395,6 +392,7 @@ namespace RadiantMapToObj.Internal.Conversion
             {
                 x = point.X;
                 y = point.Y;
+                xOffset = -xOffset;
             }
 
             x /= -plane.Texture.ScaleX;
@@ -403,24 +401,14 @@ namespace RadiantMapToObj.Internal.Conversion
             x = Math.Round(x);
             y = Math.Round(y);
 
-            double a = x;// + plane.Texture.OffsetX;
-            double b = y;// - plane.Texture.OffsetY;
+            double a = x;
+            double b = y;
 
             x = (crot * a) + (srot * b);
             y = -(srot * a) + (crot * b);
 
-            if (plane.Texture.Rotation % 360 != 0)
-            {
-                Console.WriteLine($"Rotating by {plane.Texture.Rotation} <{a}, {b}> to <{x}, {y}>");
-            }
-
-            x += plane.Texture.OffsetX;
-            y -= plane.Texture.OffsetY;
-
-            //if (plane.Texture.Rotation % 360 != 0)
-            //{
-            //    Console.WriteLine($"Rotating by {plane.Texture.Rotation} <{a}, {b}> to <{x}, {y}>");
-            //}
+            x -= xOffset;
+            y -= yOffset;
 
             double u = x / width;
             double v = y / height;
