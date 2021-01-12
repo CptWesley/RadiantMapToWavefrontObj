@@ -10,17 +10,8 @@ namespace RadiantMapToObj.Internal.TextureLoading
     /// <summary>
     /// Internal class for finding textures.
     /// </summary>
-    internal static class TextureFinder
+    internal static class TextureFinderHelper
     {
-        /// <summary>
-        /// Finds the specified texture with the given search settings.
-        /// </summary>
-        /// <param name="settings">The settings for the texture search.</param>
-        /// <param name="texture">The texture name.</param>
-        /// <returns>The data stream of the texture.</returns>
-        public static Stream? Find(TextureSettings settings, string texture)
-            => FindInDirectory(settings, texture.Split('/', '\\'), new List<string>());
-
         /// <summary>
         /// Finds the size of the texture with the given search settings.
         /// </summary>
@@ -28,35 +19,44 @@ namespace RadiantMapToObj.Internal.TextureLoading
         /// <param name="texture">The texture.</param>
         /// <returns>The size of the image or (0, 0) if the image couldn't be loaded.</returns>
         [SuppressMessage("Microsoft.Design", "CA1031", Justification = "Any exception should be dealt with.")]
-        public static (int Width, int Height) FindSize(TextureSettings settings, string texture)
+        public static (int Width, int Height, string Extension) Find(TextureSettings settings, string texture)
         {
-            using Stream? stream = Find(settings, texture);
+            (Stream? stream, string? path) = FindStream(settings, texture);
 
             if (stream is null)
             {
-                return (0, 0);
+                return (0, 0, path);
             }
 
             try
             {
                 using var image = Image.Load(stream);
-                return (image.Width, image.Height);
+                return (image.Width, image.Height, path);
             }
             catch
             {
                 try
                 {
                     using var tga = Pfim.Pfim.FromStream(stream);
-                    return (tga.Width, tga.Height);
+                    return (tga.Width, tga.Height, path);
                 }
                 catch
                 {
-                    return (0, 0);
+                    return (0, 0, path);
                 }
             }
         }
 
-        private static Stream? FindInDirectory(TextureSettings settings, string[] texture, List<string> path)
+        /// <summary>
+        /// Finds the specified texture with the given search settings.
+        /// </summary>
+        /// <param name="settings">The settings for the texture search.</param>
+        /// <param name="texture">The texture name.</param>
+        /// <returns>The data stream of the texture.</returns>
+        private static (Stream? Stream, string Extension) FindStream(TextureSettings settings, string texture)
+            => FindInDirectory(settings, texture.Split('/', '\\'), new List<string>());
+
+        private static (Stream? Stream, string Extension) FindInDirectory(TextureSettings settings, string[] texture, List<string> path)
         {
             string searchPath = string.IsNullOrWhiteSpace(settings.SearchPath) ? "./" : settings.SearchPath;
             string fullPath = Path.Combine(path.Prepend(searchPath).ToArray());
@@ -65,7 +65,7 @@ namespace RadiantMapToObj.Internal.TextureLoading
 
             if (settings.ExactMatch && missing > 0 && missing == texture.Length - 1)
             {
-                return null;
+                return (null, string.Empty);
             }
 
             if (missing == 0)
@@ -74,7 +74,7 @@ namespace RadiantMapToObj.Internal.TextureLoading
                 {
                     if (Path.GetFileNameWithoutExtension(file.Name) == texture[texture.Length - 1])
                     {
-                        return file.OpenRead();
+                        return (file.OpenRead(), file.Extension);
                     }
                 }
             }
@@ -83,14 +83,14 @@ namespace RadiantMapToObj.Internal.TextureLoading
             {
                 List<string> newPath = new List<string>(path);
                 newPath.Add(subdir.Name);
-                Stream? result = FindInDirectory(settings, texture, newPath);
-                if (result != null)
+                (Stream?, string) result = FindInDirectory(settings, texture, newPath);
+                if (result.Item1 != null)
                 {
                     return result;
                 }
             }
 
-            return null;
+            return (null, string.Empty);
         }
 
         private static int MissingMatchCount(string[] texture, List<string> path)

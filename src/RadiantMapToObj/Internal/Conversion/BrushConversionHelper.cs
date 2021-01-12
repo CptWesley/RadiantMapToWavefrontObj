@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Quake;
 using RadiantMapToObj.Quake.Hammer;
 using RadiantMapToObj.Wavefront;
@@ -12,6 +13,8 @@ namespace RadiantMapToObj.Internal.Conversion
     /// </summary>
     internal static class BrushConversionHelper
     {
+        private static readonly TextureFinder TextureFinder = new TextureFinder(new TextureSettings());
+
         /// <summary>
         /// Converts a radiant brush to an obj object.
         /// </summary>
@@ -96,7 +99,8 @@ namespace RadiantMapToObj.Internal.Conversion
                 foreach (Face face in BowyerWatson(verts, plane.Texture.Name))
                 {
                     Face fixedFace = FixNormal(face, plane.Normal);
-                    faces.Add(fixedFace);
+                    Face texturedFace = ApplyTextures(fixedFace, plane);
+                    faces.Add(texturedFace);
                 }
             }
 
@@ -336,6 +340,92 @@ namespace RadiantMapToObj.Internal.Conversion
             }
 
             return false;
+        }
+
+        private static Face ApplyTextures(Face face, ClippingPlane plane)
+        {
+            (int width, int height) = TextureFinder.FindSize(face.Texture);
+
+            if (width == 0 || height == 0)
+            {
+                return face;
+            }
+
+            Vector[] vectors = face.Vertices.ToArray();
+
+            Console.WriteLine("========================");
+            Vertex v1 = CreateTexturedVertex(plane, vectors[0], width, height);
+            Vertex v2 = CreateTexturedVertex(plane, vectors[1], width, height);
+            Vertex v3 = CreateTexturedVertex(plane, vectors[2], width, height);
+
+            return new Face(v1, v2, v3, face.Texture);
+        }
+
+        private static Vertex CreateTexturedVertex(ClippingPlane plane, Vector point, int width, int height)
+        {
+            double yzr = Vector.DotProduct(new Vector(1, 0, 0), plane.Normal);
+            double xzr = Vector.DotProduct(new Vector(0, 1, 0), plane.Normal);
+            double xyr = Vector.DotProduct(new Vector(0, 0, 1), plane.Normal);
+            double yz = Math.Abs(yzr);
+            double xz = Math.Abs(xzr);
+            double xy = Math.Abs(xyr);
+
+            double rad = Math.PI / 180 * -plane.Texture.Rotation;
+            Console.WriteLine($"Rad: {rad}");
+            double crot = Math.Round(Math.Cos(rad), 6);
+            double srot = Math.Round(Math.Sin(rad), 6);
+            Console.WriteLine($"sin: {srot} cos: {crot}");
+
+            //Console.WriteLine(crot);
+            //Console.WriteLine(srot);
+
+            double x;
+            double y;
+            if (yz >= xz && yz >= xy)
+            {
+                x = -point.Y;
+                y = point.Z;
+            }
+            else if (xz >= xy)
+            {
+                x = -point.X;
+                y = point.Z;
+            }
+            else
+            {
+                x = point.X;
+                y = point.Y;
+            }
+
+            x /= -plane.Texture.ScaleX;
+            y /= -plane.Texture.ScaleY;
+
+            x = Math.Round(x);
+            y = Math.Round(y);
+
+            double a = x;// + plane.Texture.OffsetX;
+            double b = y;// - plane.Texture.OffsetY;
+
+            x = (crot * a) + (srot * b);
+            y = -(srot * a) + (crot * b);
+
+            if (plane.Texture.Rotation % 360 != 0)
+            {
+                Console.WriteLine($"Rotating by {plane.Texture.Rotation} <{a}, {b}> to <{x}, {y}>");
+            }
+
+            x += plane.Texture.OffsetX;
+            y -= plane.Texture.OffsetY;
+
+            //if (plane.Texture.Rotation % 360 != 0)
+            //{
+            //    Console.WriteLine($"Rotating by {plane.Texture.Rotation} <{a}, {b}> to <{x}, {y}>");
+            //}
+
+            double u = x / width;
+            double v = y / height;
+
+            return new Vertex(point.X, point.Y, point.Z, u, v);
         }
     }
 }

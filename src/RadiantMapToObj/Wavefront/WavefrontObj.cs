@@ -49,22 +49,56 @@ namespace RadiantMapToObj.Wavefront
         /// <summary>
         /// Converts the object to .obj file content.
         /// </summary>
+        /// <param name="fileName">The name of the file.</param>
         /// <param name="scale">The scale.</param>
         /// <returns>The object represented in .obj file content format.</returns>
-        public string ToCode(double scale)
+        public string ToCode(string fileName, double scale)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("# Exported using Wesley Baartman's RadiantMapToObj software.");
             sb.AppendLine("# https://github.com/CptWesley/RadiantMapToWavefrontObj");
+            sb.Append("mtllib ").Append(fileName).AppendLine(".mtl");
 
-            int faceOffset = 0;
+            int faceVectorOffset = 0;
+            int faceTextureOffset = 0;
 
             // Adds code for each object contained.
             int i = 0;
             foreach (ObjObject obj in Objects)
             {
-                sb.AppendLine(obj.ToCode($"Object_{i++}", scale, faceOffset));
-                faceOffset += obj.Vertices.Count();
+                sb.AppendLine(obj.ToCode($"Object_{i++}", scale, faceVectorOffset, faceTextureOffset));
+                faceVectorOffset += obj.Vertices.Count();
+                faceTextureOffset += obj.TextureCoordinates.Count();
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Converts the object into .mtl file content.
+        /// </summary>
+        /// <param name="textureFinder">The texture finder.</param>
+        /// <returns>The content for the .mtl file.</returns>
+        public string ToMaterialCode(TextureFinder textureFinder)
+        {
+            if (textureFinder is null)
+            {
+                throw new ArgumentNullException(nameof(textureFinder));
+            }
+
+            StringBuilder sb = new StringBuilder();
+            HashSet<string> savedTextures = new HashSet<string>();
+            foreach (ObjObject obj in Objects)
+            {
+                foreach (string texture in obj.Faces.Select(x => x.Texture))
+                {
+                    if (!savedTextures.Contains(texture))
+                    {
+                        savedTextures.Add(texture);
+                        sb.Append("newmtl ").AppendLine(texture);
+                        sb.Append("map_Kd ").Append(texture).AppendLine(textureFinder.FindExtension(texture));
+                    }
+                }
             }
 
             return sb.ToString();
@@ -76,7 +110,15 @@ namespace RadiantMapToObj.Wavefront
         /// <param name="path">The path.</param>
         /// <param name="scale">The scale.</param>
         public void SaveFile(string path, double scale)
-            => File.WriteAllText(path, ToCode(scale));
+            => File.WriteAllText(path, ToCode(Path.GetFileNameWithoutExtension(path), scale));
+
+        /// <summary>
+        /// Saves the .mtl file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="textureFinder">The texture finder.</param>
+        public void SaveMaterialFile(string path, TextureFinder textureFinder)
+            => File.WriteAllText(path, ToMaterialCode(textureFinder));
 
         /// <summary>
         /// Removes objects that lack faces or vertices.

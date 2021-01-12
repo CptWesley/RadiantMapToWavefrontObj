@@ -36,6 +36,10 @@ namespace RadiantMapToObj
 
             Normal = Vector.CrossProduct(vector1, vector2).Unit;
             D = -((A * v2.X) + (B * v2.Y) + (C * v2.Z));
+
+            Vector1 = v1;
+            Vector2 = v2;
+            Vector3 = v3;
         }
 
         /// <summary>
@@ -62,6 +66,21 @@ namespace RadiantMapToObj
         /// Gets the D value of the plane.
         /// </summary>
         public double D { get; }
+
+        /// <summary>
+        /// Gets the first vector.
+        /// </summary>
+        public Vector Vector1 { get; }
+
+        /// <summary>
+        /// Gets the second vector.
+        /// </summary>
+        public Vector Vector2 { get; }
+
+        /// <summary>
+        /// Gets the third vector.
+        /// </summary>
+        public Vector Vector3 { get; }
 
         /// <inheritdoc/>
         public override string ToString()
