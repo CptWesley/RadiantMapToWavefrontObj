@@ -13,7 +13,6 @@ namespace RadiantMapToObj.App
     /// </summary>
     internal static class Program
     {
-        private static bool autoclose;
         private static ConversionSettings settings = new ConversionSettings();
 
         /// <summary>
@@ -44,14 +43,6 @@ namespace RadiantMapToObj.App
             if (!success)
             {
                 Console.WriteLine("Invalid file.");
-            }
-
-            // Wait for console input before closing.
-            Console.WriteLine("\nPress any key to close this window...");
-
-            if (!autoclose)
-            {
-                Console.ReadKey();
             }
         }
 
@@ -91,18 +82,7 @@ namespace RadiantMapToObj.App
                 string type = m.Groups[1].ToString();
                 string mode = m.Groups[2].ToString();
 
-                if (type == "autoclose")
-                {
-                    if (mode == "false" || mode == "0")
-                    {
-                        autoclose = false;
-                    }
-                    else if (mode == "true" || mode == "1")
-                    {
-                        autoclose = true;
-                    }
-                }
-                else if (type == "scale")
+                if (type == "scale")
                 {
                     if (double.TryParse(mode, out double scale))
                     {
