@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Internal.Parsing;
 using RadiantMapToObj.Wavefront;
@@ -58,8 +59,16 @@ namespace RadiantMapToObj.Quake
         /// <summary>
         /// Converts the map to a <see cref="WavefrontObj"/> instance.
         /// </summary>
+        /// <param name="settings">The conversion settings.</param>
         /// <returns>A new <see cref="WavefrontObj"/> instance.</returns>
-        public WavefrontObj ToObj()
-            => MapConversionHelper.Convert(this);
+        public WavefrontObj ToObj(ConversionSettings? settings)
+        {
+            if (settings is null)
+            {
+                settings = new ConversionSettings();
+            }
+
+            return MapConversionHelper.Convert(this, settings);
+        }
     }
 }

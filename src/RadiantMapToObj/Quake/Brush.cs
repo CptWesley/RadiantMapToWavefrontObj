@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Wavefront;
 
@@ -22,7 +23,7 @@ namespace RadiantMapToObj.Quake
         public IEnumerable<ClippingPlane> ClippingPlanes { get; }
 
         /// <inheritdoc/>
-        public ObjObject ToObjObject()
-            => BrushConversionHelper.Convert(this);
+        public ObjObject ToObjObject(ConversionSettings settings)
+            => BrushConversionHelper.Convert(this, settings);
     }
 }

@@ -1,4 +1,5 @@
-﻿using RadiantMapToObj.Wavefront;
+﻿using RadiantMapToObj.Configuration;
+using RadiantMapToObj.Wavefront;
 
 namespace RadiantMapToObj.Quake
 {
@@ -10,7 +11,8 @@ namespace RadiantMapToObj.Quake
         /// <summary>
         /// Converts this entity into an <see cref="ObjObject"/> instance.
         /// </summary>
+        /// <param name="settings">The conversion settings.</param>
         /// <returns>A new <see cref="ObjObject"/> instance.</returns>
-        ObjObject ToObjObject();
+        ObjObject ToObjObject(ConversionSettings settings);
     }
 }

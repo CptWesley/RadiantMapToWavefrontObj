@@ -13,9 +13,8 @@ namespace RadiantMapToObj.App
     /// </summary>
     internal static class Program
     {
-        private static double scale = 0.01;
         private static bool autoclose;
-        private static Filter textureFilter = Filters.Empty;
+        private static ConversionSettings settings = new ConversionSettings();
 
         /// <summary>
         /// Defines the entry point of the application.
@@ -67,13 +66,11 @@ namespace RadiantMapToObj.App
             DateTime startTime = DateTime.Now;
 
             QuakeMap map = QuakeMap.ParseFile(path);
-            WavefrontObj obj = map.ToObj();
-
-            obj.FilterTextures(textureFilter);
+            WavefrontObj obj = map.ToObj(settings);
 
             string fileNameBase = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
 
-            obj.SaveFile(fileNameBase + ".obj", scale);
+            obj.SaveFile(fileNameBase + ".obj", settings.Scale);
             obj.SaveMaterialFile(fileNameBase + ".mtl", new TextureFinder(new TextureSettings()));
 
             DateTime endTime = DateTime.Now;
@@ -109,12 +106,23 @@ namespace RadiantMapToObj.App
                 {
                     if (double.TryParse(mode, out double scale))
                     {
-                        Program.scale = scale;
+                        settings.Scale = scale;
                     }
                 }
                 else if (type == "filter")
                 {
-                    textureFilter = Filter.Load(mode);
+                    settings.Filter = Filter.Load(mode);
+                }
+                else if (type == "remove-overlap")
+                {
+                    if (mode == "false" || mode == "0")
+                    {
+                        settings.RemoveOverlappingFaces = false;
+                    }
+                    else if (mode == "true" || mode == "1")
+                    {
+                        settings.RemoveOverlappingFaces = true;
+                    }
                 }
             }
         }

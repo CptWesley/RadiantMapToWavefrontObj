@@ -13,14 +13,13 @@ namespace RadiantMapToObj.Internal.Conversion
     /// </summary>
     internal static class BrushConversionHelper
     {
-        private static readonly TextureFinder TextureFinder = new TextureFinder(new TextureSettings());
-
         /// <summary>
         /// Converts a radiant brush to an obj object.
         /// </summary>
         /// <param name="brush">The brush.</param>
+        /// <param name="settings">The conversion settings.</param>
         /// <returns>A newly created obj object.</returns>
-        public static ObjObject Convert(Brush brush)
+        public static ObjObject Convert(Brush brush, ConversionSettings settings)
         {
             IEnumerable<Vector> vertices = FindIntersections(brush.ClippingPlanes);
 
@@ -30,7 +29,7 @@ namespace RadiantMapToObj.Internal.Conversion
                 return DisplacementConversionHelper.Convert(displacement, vertices);
             }
 
-            IEnumerable<Face> faces = CreateFaces(vertices, brush.ClippingPlanes);
+            IEnumerable<Face> faces = CreateFaces(vertices, brush.ClippingPlanes, settings);
             return new ObjObject(vertices, faces);
         }
 
@@ -87,10 +86,13 @@ namespace RadiantMapToObj.Internal.Conversion
         /// </summary>
         /// <param name="vertices">The vertices.</param>
         /// <param name="planes">The planes.</param>
+        /// <param name="settings">The conversion settings.</param>
         /// <returns>The faces of the object.</returns>
-        private static IEnumerable<Face> CreateFaces(IEnumerable<Vector> vertices, IEnumerable<ClippingPlane> planes)
+        private static IEnumerable<Face> CreateFaces(IEnumerable<Vector> vertices, IEnumerable<ClippingPlane> planes, ConversionSettings settings)
         {
             List<Face> faces = new List<Face>();
+
+            TextureFinder tf = new TextureFinder(settings.Textures);
 
             foreach (ClippingPlane plane in planes)
             {
@@ -99,7 +101,7 @@ namespace RadiantMapToObj.Internal.Conversion
                 foreach (Face face in BowyerWatson(verts, plane.Texture.Name))
                 {
                     Face fixedFace = FixNormal(face, plane.Normal);
-                    Face texturedFace = ApplyTextures(fixedFace, plane);
+                    Face texturedFace = ApplyTextures(fixedFace, plane, tf);
                     faces.Add(texturedFace);
                 }
             }
@@ -342,9 +344,9 @@ namespace RadiantMapToObj.Internal.Conversion
             return false;
         }
 
-        private static Face ApplyTextures(Face face, ClippingPlane plane)
+        private static Face ApplyTextures(Face face, ClippingPlane plane, TextureFinder tf)
         {
-            (int width, int height) = TextureFinder.FindSize(face.Texture);
+            (int width, int height) = tf.FindSize(face.Texture);
 
             if (width == 0 || height == 0)
             {

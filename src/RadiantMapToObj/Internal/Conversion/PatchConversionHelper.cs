@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Quake.Radiant;
 using RadiantMapToObj.Wavefront;
 
@@ -13,8 +14,9 @@ namespace RadiantMapToObj.Internal.Conversion
         /// Converts a radiant patch to an obj object.
         /// </summary>
         /// <param name="patch">The patch.</param>
+        /// <param name="settings">The conversion settings.</param>
         /// <returns>A newly created obj object.</returns>
-        internal static ObjObject Convert(Patch patch)
+        internal static ObjObject Convert(Patch patch, ConversionSettings settings)
         {
             IEnumerable<Vector> vertices = patch.Vertices;
             IEnumerable<Face> faces = CreateFaces(patch);

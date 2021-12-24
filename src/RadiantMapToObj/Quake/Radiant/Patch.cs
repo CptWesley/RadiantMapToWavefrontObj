@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RadiantMapToObj.Configuration;
 using RadiantMapToObj.Internal.Conversion;
 using RadiantMapToObj.Wavefront;
 
@@ -45,7 +46,7 @@ namespace RadiantMapToObj.Quake.Radiant
         public Vector this[int x, int y] => Grid[x, y];
 
         /// <inheritdoc/>
-        public ObjObject ToObjObject()
-            => PatchConversionHelper.Convert(this);
+        public ObjObject ToObjObject(ConversionSettings settings)
+            => PatchConversionHelper.Convert(this, settings);
     }
 }
