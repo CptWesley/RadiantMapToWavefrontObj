@@ -15,14 +15,6 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
     [SuppressMessage("Ordering Rules", "SA1202", Justification = "Order is important for instantiation.")]
     internal static class VmfParsingHelper
     {
-        internal abstract record VmfElement;
-
-        [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        internal record VmfField(string Name, string Value) : VmfElement;
-
-        [SuppressMessage("Spacing Rules", "SA1009", Justification = "Contradictory rules.")]
-        internal record VmfClass(string Name, IEnumerable<VmfField> Fields, IEnumerable<VmfClass> Classes) : VmfElement;
-
         private static readonly IParser<(Vector, Vector, Vector)> Vertices
             = OptionalLayout
             .Then(Multiple(Vertex, OptionalLayout, 3))
@@ -64,7 +56,8 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
 
             foreach (VmfClass side in c.Classes.Where(x => x.Name == "side"))
             {
-                string texture = side.Fields.First(x => x.Name == "material").Value;
+                string textureName = side.Fields.First(x => x.Name == "material").Value;
+                PlaneTexture texture = new PlaneTexture(textureName, 0, 0, 0, 1, 1);
                 string planeText = side.Fields.First(x => x.Name == "plane").Value;
                 (Vector v1, Vector v2, Vector v3) = Vertices.Parse(planeText);
 
@@ -100,5 +93,11 @@ namespace RadiantMapToObj.Internal.Parsing.Hammer
                 }
             }
         }
+
+        internal abstract record VmfElement;
+
+        internal record VmfField(string Name, string Value) : VmfElement;
+
+        internal record VmfClass(string Name, IEnumerable<VmfField> Fields, IEnumerable<VmfClass> Classes) : VmfElement;
     }
 }

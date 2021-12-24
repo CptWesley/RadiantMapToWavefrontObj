@@ -71,7 +71,10 @@ namespace RadiantMapToObj.App
 
             obj.FilterTextures(textureFilter);
 
-            obj.SaveFile(Path.Combine(Path.GetDirectoryName(path) !, Path.GetFileNameWithoutExtension(path)) + ".obj", scale);
+            string fileNameBase = Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileNameWithoutExtension(path));
+
+            obj.SaveFile(fileNameBase + ".obj", scale);
+            obj.SaveMaterialFile(fileNameBase + ".mtl", new TextureFinder(new TextureSettings()));
 
             DateTime endTime = DateTime.Now;
             Console.WriteLine("Finished in: " + (endTime - startTime).TotalMilliseconds + "ms.");

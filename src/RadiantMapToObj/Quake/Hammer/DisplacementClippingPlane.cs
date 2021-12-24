@@ -14,7 +14,7 @@
         /// <param name="v3">The third vector.</param>
         /// <param name="texture">The texture.</param>
         /// <param name="displacement">The displacement info.</param>
-        public DisplacementClippingPlane(Vector v1, Vector v2, Vector v3, string texture, DisplacementInfo displacement)
+        public DisplacementClippingPlane(Vector v1, Vector v2, Vector v3, PlaneTexture texture, DisplacementInfo displacement)
                     : base(v1, v2, v3, texture)
                     => DisplacementInfo = displacement;
 

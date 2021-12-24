@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using RadiantMapToObj.Configuration;
+using RadiantMapToObj.Internal;
 
 namespace RadiantMapToObj.Wavefront
 {
@@ -35,13 +36,19 @@ namespace RadiantMapToObj.Wavefront
         public IEnumerable<Face> Faces { get; private set; }
 
         /// <summary>
+        /// Gets the texture coordinates.
+        /// </summary>
+        public IEnumerable<TextureCoordinate> TextureCoordinates { get; private set; }
+
+        /// <summary>
         /// Converts to .obj file content.
         /// </summary>
         /// <param name="name">The name of the object.</param>
         /// <param name="scale">The scale.</param>
-        /// <param name="faceOffset">The face offset.</param>
+        /// <param name="faceVectorOffset">The face vector offset.</param>
+        /// <param name="faceTextureOffset">The face texture coordinate offset.</param>
         /// <returns>The .obj file content.</returns>
-        public string ToCode(string name, double scale, int faceOffset)
+        public string ToCode(string name, double scale, int faceVectorOffset, int faceTextureOffset)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("o ").AppendLine(name);
@@ -49,18 +56,28 @@ namespace RadiantMapToObj.Wavefront
             // Write vertices.
             foreach (Vector vertex in Vertices)
             {
-                string x = (-vertex.X * scale).ToString("0.000000", CultureInfo.InvariantCulture);
-                string y = (-vertex.Z * scale).ToString("0.000000", CultureInfo.InvariantCulture);
-                string z = (vertex.Y * scale).ToString("0.000000", CultureInfo.InvariantCulture);
+                string x = ToCoordinateString(-vertex.X * scale);
+                string y = ToCoordinateString(-vertex.Z * scale);
+                string z = ToCoordinateString(vertex.Y * scale);
                 sb.Append("v ").Append(x).Append(' ').Append(y).Append(' ').AppendLine(z);
+            }
+
+            // Write texture coordinates.
+            foreach (TextureCoordinate uv in TextureCoordinates)
+            {
+                string u = ToCoordinateString(uv.U);
+                string v = ToCoordinateString(uv.V);
+
+                sb.Append("vt ").Append(u).Append(' ').AppendLine(v);
             }
 
             // Write faces.
             foreach (Face face in Faces)
             {
-                int v1 = Vertices.IndexOf(face.A) + 1 + faceOffset;
-                int v2 = Vertices.IndexOf(face.B) + 1 + faceOffset;
-                int v3 = Vertices.IndexOf(face.C) + 1 + faceOffset;
+                string v1 = GetVertexString(face.A, faceVectorOffset, faceTextureOffset);
+                string v2 = GetVertexString(face.B, faceVectorOffset, faceTextureOffset);
+                string v3 = GetVertexString(face.C, faceVectorOffset, faceTextureOffset);
+                sb.Append("usemtl ").AppendLine(face.Texture);
                 sb.Append("f ").Append(v1).Append(' ').Append(v2).Append(' ').Append(v3).AppendLine();
             }
 
@@ -91,6 +108,33 @@ namespace RadiantMapToObj.Wavefront
             Faces = newFaces;
 
             Cleanup();
+        }
+
+        private static string ToCoordinateString(double x)
+        {
+            string result = x.ToString("0.000000", CultureInfo.InvariantCulture);
+
+            if (x == 0 && result[0] == '-')
+            {
+                return result.Substring(1);
+            }
+
+            return result;
+        }
+
+        private string GetVertexString(Vector v, int faceVectorOffset, int faceTextureOffset)
+        {
+            int vi = Vertices.IndexOf(v) + 1 + faceVectorOffset;
+            string result = vi.ToString(CultureInfo.InvariantCulture);
+
+            if (v is Vertex vrt)
+            {
+                TextureCoordinate uv = new TextureCoordinate(vrt.U, vrt.V);
+                int vti = TextureCoordinates.IndexOf(uv) + 1 + faceTextureOffset;
+                result += "/" + vti.ToString(CultureInfo.InvariantCulture);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -125,6 +169,7 @@ namespace RadiantMapToObj.Wavefront
             }
 
             Vertices = newVertices;
+            TextureCoordinates = Faces.SelectMany(x => x.Vertices).Where(x => x is Vertex).Select(x => new TextureCoordinate(((Vertex)x).U, ((Vertex)x).V)).Distinct().ToList();
         }
     }
 }

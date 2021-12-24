@@ -38,7 +38,7 @@ namespace RadiantMapToObj.Internal.Parsing
         /// <summary>
         /// Parses texture names.
         /// </summary>
-        internal static readonly IParser<string> Texture = CompiledRegex(@"[\w\/\-\\@#\.]+");
+        internal static readonly IParser<string> TextureName = CompiledRegex(@"[\w\/\-\\@#\.]+");
 
         /// <summary>
         /// Parses a single double.

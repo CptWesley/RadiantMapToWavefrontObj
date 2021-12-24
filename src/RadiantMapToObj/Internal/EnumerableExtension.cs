@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RadiantMapToObj
+namespace RadiantMapToObj.Internal
 {
     /// <summary>
     /// Extension class for <see cref="IEnumerable"/>.

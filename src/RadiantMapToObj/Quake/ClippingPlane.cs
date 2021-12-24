@@ -15,14 +15,14 @@ namespace RadiantMapToObj.Quake
         /// <param name="v2">Vertex 2.</param>
         /// <param name="v3">Vertex 3.</param>
         /// <param name="texture">The texture.</param>
-        public ClippingPlane(Vector v1, Vector v2, Vector v3, string texture)
+        public ClippingPlane(Vector v1, Vector v2, Vector v3, PlaneTexture texture)
             : base(v1, v2, v3)
             => Texture = texture;
 
         /// <summary>
         /// Gets the texture.
         /// </summary>
-        public string Texture { get; }
+        public PlaneTexture Texture { get; }
 
         /// <summary>
         /// Checks if three clipping planes intersect and if so, returns an intersection point.
