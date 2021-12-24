@@ -38,7 +38,7 @@ namespace RadiantMapToObj.Wavefront
         /// <summary>
         /// Gets the texture coordinates.
         /// </summary>
-        public IEnumerable<TextureCoordinate> TextureCoordinates { get; private set; }
+        public IEnumerable<TextureCoordinate> TextureCoordinates { get; private set; } = Array.Empty<TextureCoordinate>();
 
         /// <summary>
         /// Converts to .obj file content.
